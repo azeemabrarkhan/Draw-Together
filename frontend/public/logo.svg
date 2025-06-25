@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="50 39 623.83 113">
+  <defs>
+    <style>
+      .letter {
+        font-family: "Comic Sans MS", "Arial Rounded MT Bold", sans-serif;
+        font-size: 60px;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+      }
+      .bold {
+        font-weight: bold;
+      }
+    </style>
+  </defs>
+
+  <g transform="translate(50, 120)">
+    <!-- "Draw" -->
+    <text class="letter" fill="#e6194b" x="0"   y="-15">D</text>
+    <text class="letter" fill="#3cb44b" x="50"  y="10">r</text>
+    <text class="letter" fill="#ffe119" x="100" y="-10">a</text>
+    <text class="letter" fill="#4363d8" x="155" y="15">w</text>
+
+    <!-- "Together" -->
+    <text class="letter bold" fill="#f58231" x="235" y="-15">T</text>
+    <text class="letter bold" fill="#911eb4" x="285" y="15">o</text>
+    <text class="letter bold" fill="#46f0f0" x="340" y="-10">g</text>
+    <text class="letter bold" fill="#f032e6" x="395" y="12">e</text>
+    <text class="letter bold" fill="#bcf60c" x="445" y="-12">t</text>
+    <text class="letter bold" fill="#fabebe" x="490" y="10">h</text>
+    <text class="letter bold" fill="#008080" x="545" y="-15">e</text>
+    <text class="letter bold" fill="#e6beff" x="595" y="12">r</text>
+  </g>
+</svg>
