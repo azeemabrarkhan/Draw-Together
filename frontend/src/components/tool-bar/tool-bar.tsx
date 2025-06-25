@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { ToolNames } from "../../enums/toolNames";
 import styles from "./styles.module.css";
+import { ToolBarContext } from "../../contexts/toolbar-context";
 
 const tools = Object.values(ToolNames).map((tool) => ({
   name: tool,
@@ -8,23 +9,34 @@ const tools = Object.values(ToolNames).map((tool) => ({
 }));
 
 const ToolBar = () => {
-  const [config, setConfig] = useState<{ selectedToolName: ToolNames | null }>({
-    selectedToolName: null,
-  });
+  const { selectedTool, color, strokeSize, setToolBarConfig } =
+    useContext(ToolBarContext);
 
-  const handleOptionSelect = (toolName: ToolNames) => {
-    setConfig((prevConfig) => ({ ...prevConfig, selectedToolName: toolName }));
+  const handleToolSelect = (toolName: ToolNames) => {
+    console.log(toolName);
+    setToolBarConfig((prevConfig) => ({
+      ...prevConfig,
+      selectedTool: toolName,
+    }));
   };
 
+  const handleColorSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setToolBarConfig((prevConfig) => ({
+      ...prevConfig,
+      color: e.target.value,
+    }));
+  };
+
+  console.log(selectedTool);
   return (
     <div className={styles["tool-bar"]}>
       {tools.map((tool) => (
         <button
           className={`${styles.option} ${
-            tool.name === config.selectedToolName ? styles.selected : ""
+            tool.name === selectedTool ? styles.selected : ""
           }`}
           key={tool.name}
-          onClick={() => handleOptionSelect(tool.name)}
+          onClick={() => handleToolSelect(tool.name)}
         >
           <div
             className={styles.icon}
@@ -36,6 +48,8 @@ const ToolBar = () => {
       <input
         type="color"
         className={`${styles.option} ${styles["color-selector"]}`}
+        value={color}
+        onChange={(e) => handleColorSelect(e)}
       ></input>
       <button className={styles.option}>Size</button>
     </div>
