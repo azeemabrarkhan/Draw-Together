@@ -1,106 +1,69 @@
-/*
- * Global CSS Resets and Box Sizing
- * These are fundamental for consistent layout behavior across browsers and ensure
- * that padding and borders are included within an element's specified width/height.
- * This approach is a widely adopted best practice in modern web development.
- */
+:root {
+  /* 🎨 Color Variables */
+  --color-white: #ffffff;
+  --color-sky: #e0f7fa;
+  --color-light-cyan: #b2ebf2;
+
+  --color-black: #000000;
+  --color-teal: #00796b;
+  --color-medium-teal: #4db6ac;
+
+  /* 🔤 Font Weight Variables */
+  --font-weight-normal: 400;
+  --font-weight-bold: 700;
+}
+
 html,
 body {
-  box-sizing: border-box; /* Sets the border-box model for the root HTML and body elements */
-  margin: 0; /* Removes default browser margins around the body */
-  padding: 0; /* Removes default browser padding around the body */
-  overflow: hidden; /* Prevents all scrolling (horizontal and vertical) */
-  width: 100vw; /* Ensures the body takes up 100% of the viewport width */
-  height: 100vh; /* Ensures the body takes up 100% of the viewport height */
-}
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
 
-*,
-*::before,
-*::after {
-  box-sizing: inherit; /* All elements and pseudo-elements inherit the box-sizing from their parent (ultimately from html/body) */
-}
-
-/*
- * Root Styles (:root targets the <html> element)
- * These define global properties such as the default font, line height,
- * base colors, and font rendering optimizations for the entire application.
- * They also set up the default (dark) theme.
- */
-:root {
-  /* Font styling for consistent typography throughout the app */
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
-  /* Theme-related properties:
-   * color-scheme: Informs the browser that the page supports both light and dark themes,
-   * allowing for native UI elements to adjust automatically.
-   * color: Default text color (set for dark mode).
-   * background-color: Default page background (set for dark mode).
-   */
   color: #000000;
 
-  /* Font rendering optimizations for smoother text display */
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
 #root {
+  display: flex;
+  flex-direction: column;
   width: 100%;
   height: 100%;
-
-  :only-child {
-    width: 100%;
-    height: 100%;
-  }
 }
 
-/*
- * Link Styles
- * These are default styles for <a> tags. If your application is primarily
- * a canvas or doesn't use standard HTML links, these can be deleted.
- */
 a {
-  font-weight: 500;
-  color: #646cff; /* Default link color */
-  text-decoration: inherit; /* Links inherit text decoration (e.g., underline) from parent, often effectively removing it */
+  font-weight: var(--font-weight-normal);
+  color: var(--color-medium-teal);
+  text-decoration: inherit;
 }
+
 a:hover {
-  color: #535bf2; /* Hover state for links */
+  color: var(--color-teal);
 }
 
-/*
- * Heading Styles (H1)
- * This provides a default style for <h1> tags. If your application doesn't
- * use <h1> elements or requires highly custom heading styles, this can be deleted.
- */
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-/*
- * Button Styles
- * These are default styles for <button> tags. If your application uses custom
- * button components or requires highly specific button styling, these can be deleted.
- */
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a; /* Default button background (for dark mode) */
-  cursor: pointer;
-  transition: border-color 0.25s; /* Smooth transition for border on hover/focus */
+  border-radius: 12%;
+  background-color: var(--color-sky);
+  border: none;
+  transition: background-color 0.3s ease;
+  padding: 6px;
 }
+
 button:hover {
-  border-color: #646cff; /* Border color on hover */
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color; /* Accessibility focus outline */
+  background-color: var(--color-light-cyan);
 }
