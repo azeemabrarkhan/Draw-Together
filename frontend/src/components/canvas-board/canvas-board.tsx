@@ -12,7 +12,7 @@ const CanvasBoard = () => {
   const handleZoom = (e: React.WheelEvent<HTMLCanvasElement>) => {
     setZoom((prev) => {
       let newZoom = prev + (e.deltaY < 0 ? 0.5 : -0.5);
-      newZoom = Math.min(Math.max(newZoom, 0.5), 5); // Clamp between 0.5 and 5
+      newZoom = Math.min(Math.max(newZoom, 0.5), 4);
       return newZoom;
     });
   };

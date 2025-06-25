@@ -13,7 +13,7 @@ type ToolBarContextType = {
 const defaultConfig = {
   selectedTool: null,
   color: "#000000",
-  strokeSize: 2,
+  strokeSize: 1,
   setToolBarConfig: () => {},
 };
 
