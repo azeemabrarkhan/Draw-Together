@@ -1,0 +1,39 @@
+.tool-bar {
+  min-width: 50px;
+  background-color: var(--color-teal);
+  padding: 10px 5px;
+
+  display: flex;
+  flex-direction: column;
+
+  .option {
+    margin: 5px 0;
+    height: 40px;
+    width: 40px;
+    border-radius: 12%;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-teal);
+  }
+
+  .selected,
+  .selected:hover {
+    background-color: var(--color-medium-teal);
+  }
+
+  .icon {
+    height: 28px;
+    width: 28px;
+    background-size: contain;
+    background-repeat: no-repeat;
+  }
+
+  .divider {
+    text-align: center;
+    font-size: 25px;
+    color: var(--color-white);
+  }
+
+  .color-selector {
+    width: auto;
+  }
+}
