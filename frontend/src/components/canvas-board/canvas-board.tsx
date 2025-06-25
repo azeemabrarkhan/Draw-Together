@@ -3,11 +3,7 @@ import { useCanvas } from "../../hooks/useCanvas";
 
 import styles from "./styles.module.css";
 
-type CanvasBoardProps = {
-  boardId: string;
-};
-
-const CanvasBoard = (props: CanvasBoardProps) => {
+const CanvasBoard = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useCanvas(canvasRef);
