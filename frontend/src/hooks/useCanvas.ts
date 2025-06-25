@@ -1,27 +1,25 @@
-import { useContext, useEffect, useRef, useCallback } from "react";
+import { useRef, useEffect, useCallback, useContext } from "react";
 import { ToolBarContext } from "../contexts/toolbar-context";
-
-let history: Array<{
-  moveTo: {
-    x: number;
-    y: number;
-  };
-  lineTo: {
-    x: number;
-    y: number;
-  };
-  color: string;
-  strokeSize: number;
-}> = [];
+import { getCanvasMouseCoords } from "../utils/canvas";
 
 export const useCanvas = (
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
-  zoom: number = 1
+  zoom: number = 1,
+  mousePos: { x: number; y: number } = { x: 0, y: 0 }
 ) => {
   const isDrawing = useRef(false);
+  const pan = useRef({ ...mousePos });
   const zoomRef = useRef(zoom);
-  // zoomRef.current = zoom;
   const lastPos = useRef<{ x: number; y: number } | null>(null);
+  const history = useRef<
+    Array<{
+      moveTo: { x: number; y: number };
+      lineTo: { x: number; y: number };
+      color: string;
+      strokeSize: number;
+    }>
+  >([]);
+
   const { color, strokeSize } = useContext(ToolBarContext);
 
   const drawHistory = useCallback(() => {
@@ -30,7 +28,7 @@ export const useCanvas = (
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    history.forEach((stroke) => {
+    history.current.forEach((stroke) => {
       ctx.strokeStyle = stroke.color;
       ctx.lineWidth = stroke.strokeSize;
       ctx.beginPath();
@@ -54,38 +52,66 @@ export const useCanvas = (
     canvas.style.width = `${rect.width}px`;
     canvas.style.height = `${rect.height}px`;
 
-    ctx.setTransform(dpr * zoomRef.current, 0, 0, dpr * zoomRef.current, 0, 0);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.translate(pan.current.x, pan.current.y);
+    ctx.scale(zoomRef.current * dpr, zoomRef.current * dpr);
 
     drawHistory();
-  }, [canvasRef]);
+  }, [canvasRef, drawHistory]);
 
   useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    const scale = zoomRef.current * dpr;
+    const newScale = zoom * dpr;
+
+    const preZoomX = (mousePos.x - pan.current.x) / scale;
+    const preZoomY = (mousePos.y - pan.current.y) / scale;
+
     zoomRef.current = zoom;
+
+    pan.current.x = mousePos.x - preZoomX * newScale;
+    pan.current.y = mousePos.y - preZoomY * newScale;
+
     setupCanvas();
-  }, [zoom, setupCanvas]);
+
+    console.log({
+      dpr,
+    });
+  }, [zoom, mousePos, setupCanvas]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-
-    const getPos = (e: MouseEvent) => {
-      const dpr = window.devicePixelRatio || 1;
-      const rect = canvas.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / (zoomRef.current * dpr);
-      const y = (e.clientY - rect.top) / (zoomRef.current * dpr);
-      return { x, y };
-    };
+    const dpr = window.devicePixelRatio || 1;
 
     const handleMouseDown = (e: MouseEvent) => {
       isDrawing.current = true;
-      lastPos.current = getPos(e);
+      lastPos.current = getCanvasMouseCoords(
+        e,
+        canvas,
+        pan.current,
+        zoomRef.current,
+        dpr
+      );
     };
 
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDrawing.current || !lastPos.current) return;
-      const currentPos = getPos(e);
+
+      const currentPos = getCanvasMouseCoords(
+        e,
+        canvas,
+        pan.current,
+        zoomRef.current,
+        dpr
+      );
 
       ctx.strokeStyle = color;
       ctx.lineWidth = strokeSize;
@@ -94,15 +120,9 @@ export const useCanvas = (
       ctx.lineTo(currentPos.x, currentPos.y);
       ctx.stroke();
 
-      history.push({
-        moveTo: {
-          x: lastPos.current.x,
-          y: lastPos.current.y,
-        },
-        lineTo: {
-          x: currentPos.x,
-          y: currentPos.y,
-        },
+      history.current.push({
+        moveTo: { ...lastPos.current },
+        lineTo: { ...currentPos },
         color,
         strokeSize,
       });
@@ -115,23 +135,37 @@ export const useCanvas = (
       lastPos.current = null;
     };
 
-    window.addEventListener("resize", setupCanvas);
-
-    const dpiQuery = window.matchMedia(
-      `(resolution: ${window.devicePixelRatio}dppx)`
-    );
+    const dpiQuery = window.matchMedia(`(resolution: ${dpr}dppx)`);
     dpiQuery.addEventListener("change", setupCanvas);
-
+    window.addEventListener("resize", setupCanvas);
     canvas.addEventListener("mousedown", handleMouseDown);
     canvas.addEventListener("mousemove", handleMouseMove);
     canvas.addEventListener("mouseup", handleMouseUp);
 
     return () => {
-      window.removeEventListener("resize", setupCanvas);
       dpiQuery.removeEventListener("change", setupCanvas);
+      window.removeEventListener("resize", setupCanvas);
       canvas.removeEventListener("mousedown", handleMouseDown);
       canvas.removeEventListener("mousemove", handleMouseMove);
       canvas.removeEventListener("mouseup", handleMouseUp);
     };
   }, [canvasRef, color, strokeSize, setupCanvas]);
+
+  // Optional public API
+  const clearCanvas = useCallback(() => {
+    history.current = [];
+    setupCanvas();
+  }, [setupCanvas]);
+
+  const redrawCanvas = useCallback(() => {
+    setupCanvas();
+  }, [setupCanvas]);
+
+  return {
+    clearCanvas,
+    redrawCanvas,
+    pan: pan.current,
+    zoom: zoomRef.current,
+    isDrawing: isDrawing.current,
+  };
 };
