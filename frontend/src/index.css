@@ -1,5 +1,5 @@
 :root {
-  /* 🎨 Color Variables */
+  /* Color Variables */
   --color-white: #ffffff;
   --color-sky: #e0f7fa;
   --color-light-cyan: #b2ebf2;
@@ -8,7 +8,7 @@
   --color-teal: #00796b;
   --color-medium-teal: #4db6ac;
 
-  /* 🔤 Font Weight Variables */
+  /* Font Weight Variables */
   --font-weight-normal: 400;
   --font-weight-bold: 700;
 }
