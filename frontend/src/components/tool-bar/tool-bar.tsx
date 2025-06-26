@@ -9,6 +9,7 @@ const tools = Object.values(ToolNames).map((tool) => ({
 }));
 
 const ToolBar = () => {
+  const [isSizeToolTipOpen, setIsSizeToolTipOpen] = useState(false);
   const { selectedTool, color, strokeSize, setToolBarConfig } =
     useContext(ToolBarContext);
 
@@ -24,6 +25,18 @@ const ToolBar = () => {
       ...prevConfig,
       color: e.target.value,
     }));
+  };
+
+  const handleStrokeSizeSelect = (strokeSize: number) => {
+    setToolBarConfig((prevConfig) => ({
+      ...prevConfig,
+      strokeSize,
+    }));
+    toggleSizeToolTip();
+  };
+
+  const toggleSizeToolTip = () => {
+    setIsSizeToolTipOpen((prev) => !prev);
   };
 
   return (
@@ -49,7 +62,24 @@ const ToolBar = () => {
         value={color}
         onChange={(e) => handleColorSelect(e)}
       ></input>
-      <button className={styles.option}>Size</button>
+      <div className={styles.sizeButtonContainer}>
+        <button className={styles.option} onClick={toggleSizeToolTip}>
+          Size
+        </button>
+        {isSizeToolTipOpen && (
+          <div className={styles.sizeToolTip}>
+            {[1, 2, 3, 4, 5, 6].map((size) => {
+              console.log(size === strokeSize);
+              return (
+                <button
+                  className={size === strokeSize ? styles.selected : ""}
+                  onClick={() => handleStrokeSizeSelect(size)}
+                >{`Stroke ${size}`}</button>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

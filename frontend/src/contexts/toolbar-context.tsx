@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ToolNames } from "../enums/toolNames";
 
 type ToolBarContextType = {
-  selectedTool: ToolNames | null;
+  selectedTool: ToolNames;
   color: string;
   strokeSize: number;
   setToolBarConfig: React.Dispatch<
