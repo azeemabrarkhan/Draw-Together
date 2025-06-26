@@ -3,10 +3,12 @@ import { ToolNames } from "../../enums/toolNames";
 import styles from "./styles.module.css";
 import { ToolBarContext } from "../../contexts/toolbar-context";
 
-const tools = Object.values(ToolNames).map((tool) => ({
+const TOOLS = Object.values(ToolNames).map((tool) => ({
   name: tool,
   icon: `url("icons/${tool}.png")`,
 }));
+
+const STROKE_SIZES = [1, 2, 3, 4, 5, 6];
 
 const ToolBar = () => {
   const [isSizeToolTipOpen, setIsSizeToolTipOpen] = useState(false);
@@ -41,7 +43,7 @@ const ToolBar = () => {
 
   return (
     <div className={styles["tool-bar"]}>
-      {tools.map((tool) => (
+      {TOOLS.map((tool) => (
         <button
           className={`${styles.option} ${
             tool.name === selectedTool ? styles.selected : ""
@@ -68,7 +70,7 @@ const ToolBar = () => {
         </button>
         {isSizeToolTipOpen && (
           <div className={styles.sizeToolTip}>
-            {[1, 2, 3, 4, 5, 6].map((size) => {
+            {STROKE_SIZES.map((size) => {
               console.log(size === strokeSize);
               return (
                 <button
