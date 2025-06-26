@@ -13,7 +13,6 @@ const ToolBar = () => {
     useContext(ToolBarContext);
 
   const handleToolSelect = (toolName: ToolNames) => {
-    console.log(toolName);
     setToolBarConfig((prevConfig) => ({
       ...prevConfig,
       selectedTool: toolName,
@@ -27,7 +26,6 @@ const ToolBar = () => {
     }));
   };
 
-  console.log(selectedTool);
   return (
     <div className={styles["tool-bar"]}>
       {tools.map((tool) => (
