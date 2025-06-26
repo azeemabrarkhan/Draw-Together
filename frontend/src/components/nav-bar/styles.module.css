@@ -1,11 +1,11 @@
 .navbar {
-  min-height: 50px;
+  min-height: 60px;
   background-color: var(--color-sky);
-  padding: 0 10px;
+  padding: 5px;
 
   .logo {
     height: 100%;
-    background-image: url("logo.svg");
+    background-image: url("logo.png");
     background-size: contain;
     background-repeat: no-repeat;
   }
