@@ -1,44 +1,28 @@
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useContext } from "react";
+import { ToolBarContext } from "../../contexts/toolbar-context";
 import { useCanvas } from "../../hooks/useCanvas";
 
 import styles from "./styles.module.css";
 
 const MIN_ZOOM = 0.5;
 const MAX_ZOOM = 5;
-const ZOOM_STEP = 0.1;
+const ZOOM_STEP = 0.5;
 
 const CanvasBoard = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [zoom, setZoom] = useState(0.5);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const { color, strokeSize, selectedTool } = useContext(ToolBarContext);
 
-  useCanvas(canvasRef, zoom, mousePos);
+  useCanvas(canvasRef, zoom, color, strokeSize, selectedTool);
 
-  const handleZoom = useCallback(
-    (e: React.WheelEvent<HTMLCanvasElement>) => {
-      const rect = e.currentTarget.getBoundingClientRect();
-      const mouse = {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      };
+  const handleZoom = (e: React.WheelEvent<HTMLCanvasElement>) => {
+    const direction = e.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP;
+    const newZoom = Math.min(Math.max(zoom + direction, MIN_ZOOM), MAX_ZOOM);
 
-      const delta = e.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP;
+    setZoom(newZoom);
+  };
 
-      const newZoom = Math.min(
-        Math.max(Math.round((zoom + delta) * 10) / 10, MIN_ZOOM),
-        MAX_ZOOM
-      );
-
-      if (newZoom !== zoom) {
-        setZoom(newZoom);
-        setMousePos(mouse);
-      }
-    },
-    [zoom]
-  );
-
-  // console.log(zoom);
-
+  console.log("canvas board render");
   return (
     <canvas ref={canvasRef} className={styles.canvas} onWheel={handleZoom} />
   );

@@ -1,16 +1,23 @@
-import { useRef, useEffect, useCallback, useContext } from "react";
-import { ToolBarContext } from "../contexts/toolbar-context";
+import { useRef, useEffect, useCallback } from "react";
 import { getCanvasMouseCoords } from "../utils/canvas";
+import { ToolNames } from "../enums/toolNames";
 
 export const useCanvas = (
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
-  zoom: number = 1,
-  mousePos: { x: number; y: number } = { x: 0, y: 0 }
+  zoom: number,
+  color: string,
+  strokeSize: number,
+  selectedTool: ToolNames
 ) => {
   const isDrawing = useRef(false);
-  const pan = useRef({ ...mousePos });
+  const pan = useRef({ x: 0, y: 0 });
   const zoomRef = useRef(zoom);
   const lastPos = useRef<{ x: number; y: number } | null>(null);
+  const isDragging = useRef(false);
+  const dragStart = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const panStart = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const strokeSizeRef = useRef<number>(strokeSize);
+  const colorRef = useRef<string>(color);
   const history = useRef<
     Array<{
       moveTo: { x: number; y: number };
@@ -20,23 +27,21 @@ export const useCanvas = (
     }>
   >([]);
 
-  const { color, strokeSize } = useContext(ToolBarContext);
-
-  const drawHistory = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    history.current.forEach((stroke) => {
-      ctx.strokeStyle = stroke.color;
-      ctx.lineWidth = stroke.strokeSize;
-      ctx.beginPath();
-      ctx.moveTo(stroke.moveTo.x, stroke.moveTo.y);
-      ctx.lineTo(stroke.lineTo.x, stroke.lineTo.y);
-      ctx.stroke();
-    });
-  }, [canvasRef]);
+  const drawHistory = useCallback(
+    (ctx: CanvasRenderingContext2D | null) => {
+      if (ctx !== null) {
+        history.current.forEach((stroke) => {
+          ctx.strokeStyle = stroke.color;
+          ctx.lineWidth = stroke.strokeSize;
+          ctx.beginPath();
+          ctx.moveTo(stroke.moveTo.x, stroke.moveTo.y);
+          ctx.lineTo(stroke.lineTo.x, stroke.lineTo.y);
+          ctx.stroke();
+        });
+      }
+    },
+    [canvasRef]
+  );
 
   const setupCanvas = useCallback(() => {
     const canvas = canvasRef.current;
@@ -44,7 +49,8 @@ export const useCanvas = (
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const dpr = window.devicePixelRatio || 1;
+    // const dpr = window.devicePixelRatio || 1;
+    const dpr = 1;
     const rect = canvas.getBoundingClientRect();
 
     canvas.width = rect.width * dpr;
@@ -58,79 +64,127 @@ export const useCanvas = (
     ctx.translate(pan.current.x, pan.current.y);
     ctx.scale(zoomRef.current * dpr, zoomRef.current * dpr);
 
-    drawHistory();
+    drawHistory(ctx);
   }, [canvasRef, drawHistory]);
 
+  // Zoom effect — toward canvas center
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const dpr = window.devicePixelRatio || 1;
+    // const dpr = window.devicePixelRatio || 1;
+    const dpr = 1;
     const scale = zoomRef.current * dpr;
     const newScale = zoom * dpr;
 
-    const preZoomX = (mousePos.x - pan.current.x) / scale;
-    const preZoomY = (mousePos.y - pan.current.y) / scale;
+    const rect = canvas.getBoundingClientRect();
+    const center = {
+      x: rect.width / 2,
+      y: rect.height / 2,
+    };
+
+    const preZoomX = (center.x - pan.current.x) / scale;
+    const preZoomY = (center.y - pan.current.y) / scale;
 
     zoomRef.current = zoom;
 
-    pan.current.x = mousePos.x - preZoomX * newScale;
-    pan.current.y = mousePos.y - preZoomY * newScale;
+    pan.current.x = center.x - preZoomX * newScale;
+    pan.current.y = center.y - preZoomY * newScale;
+
+    pan.current.x = Math.round(pan.current.x * 1000) / 1000;
+    pan.current.y = Math.round(pan.current.y * 1000) / 1000;
 
     setupCanvas();
-
-    console.log({
-      dpr,
-    });
-  }, [zoom, mousePos, setupCanvas]);
+  }, [zoom, setupCanvas]);
 
   useEffect(() => {
+    colorRef.current = color;
+    strokeSizeRef.current = strokeSize;
+  }, [color, strokeSize]);
+
+  // Drawing logic
+  useEffect(() => {
+    console.log("drawing logic");
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    const dpr = window.devicePixelRatio || 1;
+    // const dpr = window.devicePixelRatio || 1;
+    const dpr = 1;
+
+    if (selectedTool === ToolNames.PAN) {
+      canvas.style.cursor = "grab";
+    } else {
+      canvas.style.cursor = "crosshair";
+    }
 
     const handleMouseDown = (e: MouseEvent) => {
-      isDrawing.current = true;
-      lastPos.current = getCanvasMouseCoords(
-        e,
-        canvas,
-        pan.current,
-        zoomRef.current,
-        dpr
-      );
+      if (selectedTool === ToolNames.PAN) {
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        isDragging.current = true;
+        dragStart.current = { x: mouseX, y: mouseY };
+        panStart.current = { ...pan.current };
+      } else if (selectedTool === ToolNames.DRAW) {
+        isDrawing.current = true;
+        console.log(dpr);
+        lastPos.current = getCanvasMouseCoords(
+          e,
+          canvas,
+          pan.current,
+          zoomRef.current,
+          dpr
+        );
+      }
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isDrawing.current || !lastPos.current) return;
+      if (selectedTool === ToolNames.PAN && isDragging.current) {
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        const dx = mouseX - dragStart.current.x;
+        const dy = mouseY - dragStart.current.y;
 
-      const currentPos = getCanvasMouseCoords(
-        e,
-        canvas,
-        pan.current,
-        zoomRef.current,
-        dpr
-      );
+        pan.current = {
+          x: panStart.current.x + dx,
+          y: panStart.current.y + dy,
+        };
 
-      ctx.strokeStyle = color;
-      ctx.lineWidth = strokeSize;
-      ctx.beginPath();
-      ctx.moveTo(lastPos.current.x, lastPos.current.y);
-      ctx.lineTo(currentPos.x, currentPos.y);
-      ctx.stroke();
+        setupCanvas(); // redraw at new pan position
+      } else if (
+        selectedTool === ToolNames.DRAW &&
+        isDrawing.current &&
+        lastPos.current
+      ) {
+        const currentPos = getCanvasMouseCoords(
+          e,
+          canvas,
+          pan.current,
+          zoomRef.current,
+          dpr
+        );
+        ctx.strokeStyle = colorRef.current;
+        ctx.lineWidth = strokeSizeRef.current;
+        ctx.beginPath();
+        ctx.moveTo(lastPos.current.x, lastPos.current.y);
+        ctx.lineTo(currentPos.x, currentPos.y);
+        ctx.stroke();
 
-      history.current.push({
-        moveTo: { ...lastPos.current },
-        lineTo: { ...currentPos },
-        color,
-        strokeSize,
-      });
+        history.current.push({
+          moveTo: { ...lastPos.current },
+          lineTo: { ...currentPos },
+          color: colorRef.current,
+          strokeSize: strokeSizeRef.current,
+        });
 
-      lastPos.current = currentPos;
+        lastPos.current = currentPos;
+      }
     };
 
     const handleMouseUp = () => {
+      isDragging.current = false;
       isDrawing.current = false;
       lastPos.current = null;
     };
@@ -149,9 +203,9 @@ export const useCanvas = (
       canvas.removeEventListener("mousemove", handleMouseMove);
       canvas.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [canvasRef, color, strokeSize, setupCanvas]);
+  }, [canvasRef, selectedTool, setupCanvas]);
 
-  // Optional public API
+  // Public API
   const clearCanvas = useCallback(() => {
     history.current = [];
     setupCanvas();
@@ -167,5 +221,6 @@ export const useCanvas = (
     pan: pan.current,
     zoom: zoomRef.current,
     isDrawing: isDrawing.current,
+    isDragging: isDragging.current,
   };
 };
