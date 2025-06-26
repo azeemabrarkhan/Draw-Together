@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import type { ToolNames } from "../enums/toolNames";
+import { ToolNames } from "../enums/toolNames";
 
 type ToolBarContextType = {
   selectedTool: ToolNames | null;
@@ -10,8 +10,8 @@ type ToolBarContextType = {
   >;
 };
 
-const defaultConfig = {
-  selectedTool: null,
+const defaultConfig: ToolBarContextType = {
+  selectedTool: ToolNames.DRAW,
   color: "#000000",
   strokeSize: 1,
   setToolBarConfig: () => {},
@@ -26,9 +26,9 @@ const ToolBarContextProvider: React.FC<{ children: React.ReactNode }> = ({
   const [{ selectedTool, color, strokeSize }, setToolBarConfig] = useState<
     Omit<ToolBarContextType, "setToolBarConfig">
   >({
-    selectedTool: null,
+    selectedTool: ToolNames.DRAW,
     color: "#000000",
-    strokeSize: 2,
+    strokeSize: 1,
   });
 
   return (

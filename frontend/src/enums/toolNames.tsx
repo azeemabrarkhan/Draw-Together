@@ -1,4 +1,6 @@
 export enum ToolNames {
+  PAN = "PAN",
+  DRAW = "DRAW",
   CIRCLE = "CIRCLE",
   SQUARE = "SQUARE",
   UP_TRIANGLE = "UP_TRIANGLE",
@@ -6,5 +8,4 @@ export enum ToolNames {
   DOWN_TRIANGLE = "DOWN_TRIANGLE",
   LEFT_TRIANGLE = "LEFT_TRIANGLE",
   RECTANGLE = "RECTANGLE",
-  PEN = "PEN",
 }
