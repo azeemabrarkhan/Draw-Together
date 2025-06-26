@@ -10,6 +10,8 @@
     margin: 5px 0;
     height: 40px;
     width: 40px;
+    min-width: 40px;
+    text-align: center;
     border-radius: 12%;
     font-weight: var(--font-weight-bold);
     color: var(--color-teal);
@@ -25,6 +27,7 @@
   .selected,
   .selected:hover {
     background-color: var(--color-medium-teal);
+    color: var(--color-black);
   }
 
   .divider {

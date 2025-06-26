@@ -8,7 +8,7 @@ const TOOLS = Object.values(ToolNames).map((tool) => ({
   icon: `url("icons/${tool}.png")`,
 }));
 
-const STROKE_SIZES = [1, 2, 3, 4, 5, 6];
+const STROKE_SIZES = [1, 2, 3, 4, 5];
 
 const ToolBar = () => {
   const [isSizeToolTipOpen, setIsSizeToolTipOpen] = useState(false);
@@ -32,7 +32,7 @@ const ToolBar = () => {
   const handleStrokeSizeSelect = (strokeSize: number) => {
     setToolBarConfig((prevConfig) => ({
       ...prevConfig,
-      strokeSize,
+      strokeSize: strokeSize * 2,
     }));
     toggleSizeToolTip();
   };
@@ -65,20 +65,22 @@ const ToolBar = () => {
         onChange={(e) => handleColorSelect(e)}
       ></input>
       <div className={styles.sizeButtonContainer}>
-        <button className={styles.option} onClick={toggleSizeToolTip}>
+        <button
+          className={`${styles.option} ${
+            isSizeToolTipOpen ? styles.selected : ""
+          }`}
+          onClick={toggleSizeToolTip}
+        >
           Size
         </button>
         {isSizeToolTipOpen && (
           <div className={styles.sizeToolTip}>
-            {STROKE_SIZES.map((size) => {
-              console.log(size === strokeSize);
-              return (
-                <button
-                  className={size === strokeSize ? styles.selected : ""}
-                  onClick={() => handleStrokeSizeSelect(size)}
-                >{`Stroke ${size}`}</button>
-              );
-            })}
+            {STROKE_SIZES.map((size) => (
+              <button
+                className={size === strokeSize ? styles.selected : ""}
+                onClick={() => handleStrokeSizeSelect(size)}
+              >{`Stroke ${size}`}</button>
+            ))}
           </div>
         )}
       </div>
