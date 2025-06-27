@@ -67,6 +67,34 @@ export const drawOnCanvas = (
       canvasContext.rect(from.x, from.y, width, height);
       break;
 
+    case ToolTypes.UP_TRIANGLE:
+      canvasContext.moveTo(from.x + width / 2, from.y);
+      canvasContext.lineTo(from.x, from.y + height);
+      canvasContext.lineTo(from.x + width, from.y + height);
+      canvasContext.closePath();
+      break;
+
+    case ToolTypes.RIGHT_TRIANGLE:
+      canvasContext.moveTo(from.x + width, from.y + height / 2);
+      canvasContext.lineTo(from.x, from.y);
+      canvasContext.lineTo(from.x, from.y + height);
+      canvasContext.closePath();
+      break;
+
+    case ToolTypes.DOWN_TRIANGLE:
+      canvasContext.moveTo(from.x + width / 2, from.y + height);
+      canvasContext.lineTo(from.x, from.y);
+      canvasContext.lineTo(from.x + width, from.y);
+      canvasContext.closePath();
+      break;
+
+    case ToolTypes.LEFT_TRIANGLE:
+      canvasContext.moveTo(from.x, from.y + height / 2);
+      canvasContext.lineTo(from.x + width, from.y);
+      canvasContext.lineTo(from.x + width, from.y + height);
+      canvasContext.closePath();
+      break;
+
     default:
       break;
   }
