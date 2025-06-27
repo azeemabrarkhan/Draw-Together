@@ -1,9 +1,9 @@
 import { useContext, useState } from "react";
-import { ToolNames } from "../../enums/toolNames";
+import { ToolTypes } from "../../enums/toolTypes";
 import styles from "./styles.module.css";
 import { ToolBarContext } from "../../contexts/toolbar-context";
 
-const TOOLS = Object.values(ToolNames).map((tool) => ({
+const TOOLS = Object.values(ToolTypes).map((tool) => ({
   name: tool,
   icon: `url("icons/${tool}.png")`,
 }));
@@ -15,10 +15,10 @@ const ToolBar = () => {
   const { selectedTool, color, strokeSize, setToolBarConfig } =
     useContext(ToolBarContext);
 
-  const handleToolSelect = (toolName: ToolNames) => {
+  const handleToolSelect = (toolType: ToolTypes) => {
     setToolBarConfig((prevConfig) => ({
       ...prevConfig,
-      selectedTool: toolName,
+      selectedTool: toolType,
     }));
   };
 

@@ -1,4 +1,4 @@
-import { ToolNames } from "../enums/toolNames";
+import { ToolTypes } from "../enums/toolTypes";
 import type { Coordinates } from "../models/coordinates";
 
 export const getCanvasMouseCoords = (
@@ -22,7 +22,7 @@ export const drawOnCanvas = (
   from: Coordinates,
   to: Coordinates,
   canvasContext: CanvasRenderingContext2D | null,
-  toolType: ToolNames,
+  toolType: ToolTypes,
   color: string,
   strokeWidth: number
 ) => {
@@ -33,12 +33,12 @@ export const drawOnCanvas = (
   canvasContext.beginPath();
 
   switch (toolType) {
-    case ToolNames.DRAW:
+    case ToolTypes.DRAW:
       canvasContext.moveTo(from.x, from.y);
       canvasContext.lineTo(to.x, to.y);
       break;
 
-    case ToolNames.CIRCLE:
+    case ToolTypes.CIRCLE:
       const width = to.x - from.x;
       const height = to.y - from.y;
       const radius = Math.sqrt(width ** 2 + height ** 2) / 2;

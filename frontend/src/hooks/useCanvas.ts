@@ -1,6 +1,6 @@
 import { useRef, useEffect, useCallback } from "react";
 import { drawOnCanvas, getCanvasMouseCoords } from "../utils/canvas";
-import { ToolNames } from "../enums/toolNames";
+import { ToolTypes } from "../enums/toolTypes";
 import type { Coordinates } from "../models/coordinates";
 import type { StrokeData, StrokeHistory } from "../models/strokes";
 
@@ -9,14 +9,14 @@ export const useCanvas = (
   zoom: number,
   color: string,
   strokeSize: number,
-  selectedTool: ToolNames
+  selectedTool: ToolTypes
 ) => {
   const isDrawing = useRef(false);
   const isDragging = useRef(false);
   const zoomRef = useRef(zoom);
   const colorRef = useRef<string>(color);
   const strokeSizeRef = useRef<number>(strokeSize);
-  const selectedToolRef = useRef<ToolNames>(selectedTool);
+  const selectedToolRef = useRef<ToolTypes>(selectedTool);
 
   const panCoords = useRef({ x: 0, y: 0 });
   const lastMouseCoords = useRef<Coordinates>({ x: 0, y: 0 });
@@ -101,7 +101,7 @@ export const useCanvas = (
     const canvas = canvasRef.current;
     if (canvas) {
       canvas.style.cursor =
-        selectedToolRef.current === ToolNames.PAN ? "grab" : "crosshair";
+        selectedToolRef.current === ToolTypes.PAN ? "grab" : "crosshair";
     }
   }, [color, strokeSize, selectedTool]);
 
@@ -113,7 +113,7 @@ export const useCanvas = (
     if (!canvasContext) return;
 
     const handleMouseDown = (e: MouseEvent) => {
-      if (selectedToolRef.current === ToolNames.PAN) {
+      if (selectedToolRef.current === ToolTypes.PAN) {
         isDragging.current = true;
 
         const rect = canvas.getBoundingClientRect();
@@ -136,7 +136,7 @@ export const useCanvas = (
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDragging.current && !isDrawing.current) return;
 
-      if (selectedToolRef.current === ToolNames.PAN && isDragging.current) {
+      if (selectedToolRef.current === ToolTypes.PAN && isDragging.current) {
         const rect = canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
@@ -159,7 +159,7 @@ export const useCanvas = (
         );
 
         switch (selectedToolRef.current) {
-          case ToolNames.DRAW:
+          case ToolTypes.DRAW:
             drawOnCanvas(
               lastMouseCoords.current,
               currentMouseCoords,
@@ -195,7 +195,7 @@ export const useCanvas = (
     };
 
     const handleMouseUp = (e: MouseEvent) => {
-      if (selectedToolRef.current !== ToolNames.PAN) {
+      if (selectedToolRef.current !== ToolTypes.PAN) {
         const currentMouseCoords = getCanvasMouseCoords(
           e,
           canvas,
@@ -204,7 +204,7 @@ export const useCanvas = (
         );
 
         const data =
-          selectedToolRef.current === ToolNames.DRAW
+          selectedToolRef.current === ToolTypes.DRAW
             ? [...strokesData.current]
             : [
                 {
