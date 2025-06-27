@@ -1,9 +1,10 @@
 import { ToolNames } from "../enums/toolNames";
+import type { Coordinates } from "../models/coordinates";
 
 export const getCanvasMouseCoords = (
   e: MouseEvent,
   canvas: HTMLCanvasElement,
-  pan: { x: number; y: number },
+  pan: Coordinates,
   zoom: number
 ) => {
   const rect = canvas.getBoundingClientRect();
@@ -18,33 +19,33 @@ export const getCanvasMouseCoords = (
 };
 
 export const drawOnCanvas = (
-  startCursorLocation: { x: number; y: number },
-  currentCursorLocation: { x: number; y: number },
+  from: Coordinates,
+  to: Coordinates,
   canvasContext: CanvasRenderingContext2D | null,
   toolType: ToolNames,
-  strokeStyle: string,
+  color: string,
   strokeWidth: number
 ) => {
   if (!canvasContext) return;
 
-  canvasContext.strokeStyle = strokeStyle;
+  canvasContext.strokeStyle = color;
   canvasContext.lineWidth = strokeWidth;
   canvasContext.beginPath();
 
   switch (toolType) {
     case ToolNames.DRAW:
-      canvasContext.moveTo(startCursorLocation.x, startCursorLocation.y);
-      canvasContext.lineTo(currentCursorLocation.x, currentCursorLocation.y);
+      canvasContext.moveTo(from.x, from.y);
+      canvasContext.lineTo(to.x, to.y);
       break;
 
     case ToolNames.CIRCLE:
-      const width = currentCursorLocation.x - startCursorLocation.x;
-      const height = currentCursorLocation.y - startCursorLocation.y;
+      const width = to.x - from.x;
+      const height = to.y - from.y;
       const radius = Math.sqrt(width ** 2 + height ** 2) / 2;
       canvasContext.beginPath();
       canvasContext.arc(
-        startCursorLocation.x + width / 2,
-        startCursorLocation.y + height / 2,
+        from.x + width / 2,
+        from.y + height / 2,
         radius,
         0,
         Math.PI * 2
