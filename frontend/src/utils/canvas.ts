@@ -28,6 +28,9 @@ export const drawOnCanvas = (
 ) => {
   if (!canvasContext) return;
 
+  const width = to.x - from.x;
+  const height = to.y - from.y;
+
   canvasContext.strokeStyle = color;
   canvasContext.lineWidth = strokeWidth;
   canvasContext.beginPath();
@@ -39,8 +42,6 @@ export const drawOnCanvas = (
       break;
 
     case ToolTypes.CIRCLE:
-      const width = to.x - from.x;
-      const height = to.y - from.y;
       const radius = Math.sqrt(width ** 2 + height ** 2) / 2;
       canvasContext.beginPath();
       canvasContext.arc(
@@ -50,6 +51,20 @@ export const drawOnCanvas = (
         0,
         Math.PI * 2
       );
+      break;
+
+    case ToolTypes.SQUARE:
+      const size = Math.min(Math.abs(width), Math.abs(height));
+      canvasContext.rect(
+        from.x,
+        from.y,
+        width < 0 ? -size : size,
+        height < 0 ? -size : size
+      );
+      break;
+
+    case ToolTypes.RECTANGLE:
+      canvasContext.rect(from.x, from.y, width, height);
       break;
 
     default:
