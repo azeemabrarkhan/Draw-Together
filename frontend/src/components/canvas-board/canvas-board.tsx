@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback, useContext } from "react";
+import { useRef, useState, useContext } from "react";
 import { ToolBarContext } from "../../contexts/toolbar-context";
 import { useCanvas } from "../../hooks/useCanvas";
 
@@ -22,7 +22,6 @@ const CanvasBoard = () => {
     setZoom(newZoom);
   };
 
-  console.log("canvas board render");
   return (
     <canvas ref={canvasRef} className={styles.canvas} onWheel={handleZoom} />
   );
