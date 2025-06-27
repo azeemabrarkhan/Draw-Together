@@ -5,7 +5,7 @@
 
   .logo {
     height: 100%;
-    background-image: url("logos/logo.png");
+    background-image: url("/logos/logo.png");
     background-size: contain;
     background-repeat: no-repeat;
   }

@@ -5,7 +5,7 @@ import { ToolBarContext } from "../../contexts/toolbar-context";
 
 const TOOLS = Object.values(ToolTypes).map((tool) => ({
   name: tool,
-  icon: `url("icons/${tool}.png")`,
+  icon: `url("/icons/${tool}.png")`,
 }));
 
 const STROKE_SIZES = [1, 2, 3, 4, 5];
