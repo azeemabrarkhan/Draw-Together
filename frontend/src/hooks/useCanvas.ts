@@ -29,7 +29,7 @@ export const useCanvas = (
 
   const drawHistory = useCallback(
     (ctx: CanvasRenderingContext2D | null) => {
-      if (ctx !== null) {
+      if (ctx) {
         history.current.forEach((stroke) => {
           ctx.strokeStyle = stroke.color;
           ctx.lineWidth = stroke.strokeSize;
@@ -90,6 +90,7 @@ export const useCanvas = (
     setupCanvas();
   }, [zoom, setupCanvas]);
 
+  // Update refs
   useEffect(() => {
     colorRef.current = color;
     strokeSizeRef.current = strokeSize;
@@ -141,7 +142,7 @@ export const useCanvas = (
           y: panStart.current.y + dy,
         };
 
-        setupCanvas(); // redraw at new pan position
+        setupCanvas();
       } else if (
         selectedTool === ToolNames.DRAW &&
         isDrawing.current &&
@@ -190,19 +191,13 @@ export const useCanvas = (
     };
   }, [canvasRef, selectedTool, setupCanvas]);
 
-  // Public API
   const clearCanvas = useCallback(() => {
     history.current = [];
     setupCanvas();
   }, [setupCanvas]);
 
-  const redrawCanvas = useCallback(() => {
-    setupCanvas();
-  }, [setupCanvas]);
-
   return {
     clearCanvas,
-    redrawCanvas,
     pan: pan.current,
     zoom: zoomRef.current,
     isDrawing: isDrawing.current,
