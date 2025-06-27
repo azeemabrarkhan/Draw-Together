@@ -1,6 +1,8 @@
 import { useRef, useEffect, useCallback } from "react";
-import { getCanvasMouseCoords } from "../utils/canvas";
+import { drawOnCanvas, getCanvasMouseCoords } from "../utils/canvas";
 import { ToolNames } from "../enums/toolNames";
+import type { Coordinates } from "../models/coordinates";
+import type { StrokeData, StrokeHistory } from "../models/strokes";
 
 export const useCanvas = (
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
@@ -10,44 +12,44 @@ export const useCanvas = (
   selectedTool: ToolNames
 ) => {
   const isDrawing = useRef(false);
-  const pan = useRef({ x: 0, y: 0 });
-  const zoomRef = useRef(zoom);
-  const lastPos = useRef<{ x: number; y: number } | null>(null);
   const isDragging = useRef(false);
-  const dragStart = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
-  const panStart = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
-  const strokeSizeRef = useRef<number>(strokeSize);
+  const zoomRef = useRef(zoom);
   const colorRef = useRef<string>(color);
-  const history = useRef<
-    Array<{
-      moveTo: { x: number; y: number };
-      lineTo: { x: number; y: number };
-      color: string;
-      strokeSize: number;
-    }>
-  >([]);
+  const strokeSizeRef = useRef<number>(strokeSize);
+  const selectedToolRef = useRef<ToolNames>(selectedTool);
+
+  const panCoords = useRef({ x: 0, y: 0 });
+  const lastMouseCoords = useRef<Coordinates>({ x: 0, y: 0 });
+  const lastPanCoords = useRef<Coordinates>({ x: 0, y: 0 });
+
+  const strokesData = useRef<StrokeData[]>([]);
+  const history = useRef<StrokeHistory[]>([]);
 
   const drawHistory = useCallback(
-    (ctx: CanvasRenderingContext2D | null) => {
-      if (ctx) {
-        history.current.forEach((stroke) => {
-          ctx.strokeStyle = stroke.color;
-          ctx.lineWidth = stroke.strokeSize;
-          ctx.beginPath();
-          ctx.moveTo(stroke.moveTo.x, stroke.moveTo.y);
-          ctx.lineTo(stroke.lineTo.x, stroke.lineTo.y);
-          ctx.stroke();
-        });
+    (canvasContext: CanvasRenderingContext2D | null) => {
+      if (canvasContext) {
+        history.current.forEach((stroke) =>
+          stroke.data.forEach((data) =>
+            drawOnCanvas(
+              data.from,
+              data.to,
+              canvasContext,
+              stroke.toolType,
+              data.color,
+              data.strokeSize
+            )
+          )
+        );
       }
     },
-    [canvasRef]
+    []
   );
 
   const setupCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    const canvasContext = canvas.getContext("2d");
+    if (!canvasContext) return;
 
     const rect = canvas.getBoundingClientRect();
 
@@ -56,13 +58,13 @@ export const useCanvas = (
     canvas.style.width = `${rect.width}px`;
     canvas.style.height = `${rect.height}px`;
 
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    canvasContext.setTransform(1, 0, 0, 1, 0, 0);
+    canvasContext.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.translate(pan.current.x, pan.current.y);
-    ctx.scale(zoomRef.current, zoomRef.current);
+    canvasContext.translate(panCoords.current.x, panCoords.current.y);
+    canvasContext.scale(zoomRef.current, zoomRef.current);
 
-    drawHistory(ctx);
+    drawHistory(canvasContext);
   }, [canvasRef, drawHistory]);
 
   // Zoom effect — toward canvas center
@@ -76,16 +78,16 @@ export const useCanvas = (
       y: rect.height / 2,
     };
 
-    const preZoomX = (center.x - pan.current.x) / zoomRef.current;
-    const preZoomY = (center.y - pan.current.y) / zoomRef.current;
+    const preZoomX = (center.x - panCoords.current.x) / zoomRef.current;
+    const preZoomY = (center.y - panCoords.current.y) / zoomRef.current;
 
     zoomRef.current = zoom;
 
-    pan.current.x = center.x - preZoomX * zoom;
-    pan.current.y = center.y - preZoomY * zoom;
+    panCoords.current.x = center.x - preZoomX * zoom;
+    panCoords.current.y = center.y - preZoomY * zoom;
 
-    pan.current.x = Math.round(pan.current.x * 1000) / 1000;
-    pan.current.y = Math.round(pan.current.y * 1000) / 1000;
+    panCoords.current.x = Math.round(panCoords.current.x * 1000) / 1000;
+    panCoords.current.y = Math.round(panCoords.current.y * 1000) / 1000;
 
     setupCanvas();
   }, [zoom, setupCanvas]);
@@ -94,88 +96,135 @@ export const useCanvas = (
   useEffect(() => {
     colorRef.current = color;
     strokeSizeRef.current = strokeSize;
-  }, [color, strokeSize]);
+    selectedToolRef.current = selectedTool;
+
+    const canvas = canvasRef.current;
+    if (canvas) {
+      canvas.style.cursor =
+        selectedToolRef.current === ToolNames.PAN ? "grab" : "crosshair";
+    }
+  }, [color, strokeSize, selectedTool]);
 
   // Drawing logic
   useEffect(() => {
-    console.log("drawing logic");
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    if (selectedTool === ToolNames.PAN) {
-      canvas.style.cursor = "grab";
-    } else {
-      canvas.style.cursor = "crosshair";
-    }
+    const canvasContext = canvas.getContext("2d");
+    if (!canvasContext) return;
 
     const handleMouseDown = (e: MouseEvent) => {
-      if (selectedTool === ToolNames.PAN) {
-        const rect = canvas.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
+      if (selectedToolRef.current === ToolNames.PAN) {
         isDragging.current = true;
-        dragStart.current = { x: mouseX, y: mouseY };
-        panStart.current = { ...pan.current };
-      } else if (selectedTool === ToolNames.DRAW) {
+
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        lastMouseCoords.current = { x, y };
+        lastPanCoords.current = { ...panCoords.current };
+      } else {
         isDrawing.current = true;
-        lastPos.current = getCanvasMouseCoords(
+        lastMouseCoords.current = getCanvasMouseCoords(
           e,
           canvas,
-          pan.current,
+          panCoords.current,
           zoomRef.current
         );
       }
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (selectedTool === ToolNames.PAN && isDragging.current) {
-        const rect = canvas.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-        const dx = mouseX - dragStart.current.x;
-        const dy = mouseY - dragStart.current.y;
+      if (!isDragging.current && !isDrawing.current) return;
 
-        pan.current = {
-          x: panStart.current.x + dx,
-          y: panStart.current.y + dy,
+      if (selectedToolRef.current === ToolNames.PAN && isDragging.current) {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        const dx = x - lastMouseCoords.current.x;
+        const dy = y - lastMouseCoords.current.y;
+
+        panCoords.current = {
+          x: lastPanCoords.current.x + dx,
+          y: lastPanCoords.current.y + dy,
         };
 
         setupCanvas();
-      } else if (
-        selectedTool === ToolNames.DRAW &&
-        isDrawing.current &&
-        lastPos.current
-      ) {
-        const currentPos = getCanvasMouseCoords(
+      } else {
+        const currentMouseCoords = getCanvasMouseCoords(
           e,
           canvas,
-          pan.current,
+          panCoords.current,
           zoomRef.current
         );
-        ctx.strokeStyle = colorRef.current;
-        ctx.lineWidth = strokeSizeRef.current;
-        ctx.beginPath();
-        ctx.moveTo(lastPos.current.x, lastPos.current.y);
-        ctx.lineTo(currentPos.x, currentPos.y);
-        ctx.stroke();
 
-        history.current.push({
-          moveTo: { ...lastPos.current },
-          lineTo: { ...currentPos },
-          color: colorRef.current,
-          strokeSize: strokeSizeRef.current,
-        });
+        switch (selectedToolRef.current) {
+          case ToolNames.DRAW:
+            drawOnCanvas(
+              lastMouseCoords.current,
+              currentMouseCoords,
+              canvasContext,
+              selectedToolRef.current,
+              colorRef.current,
+              strokeSizeRef.current
+            );
 
-        lastPos.current = currentPos;
+            strokesData.current.push({
+              from: { ...lastMouseCoords.current },
+              to: { ...currentMouseCoords },
+              color: colorRef.current,
+              strokeSize: strokeSizeRef.current,
+            });
+
+            lastMouseCoords.current = currentMouseCoords;
+            break;
+          default:
+            setupCanvas();
+
+            drawOnCanvas(
+              lastMouseCoords.current,
+              currentMouseCoords,
+              canvasContext,
+              selectedToolRef.current,
+              colorRef.current,
+              strokeSizeRef.current
+            );
+            break;
+        }
       }
     };
 
-    const handleMouseUp = () => {
+    const handleMouseUp = (e: MouseEvent) => {
+      if (selectedToolRef.current !== ToolNames.PAN) {
+        const currentMouseCoords = getCanvasMouseCoords(
+          e,
+          canvas,
+          panCoords.current,
+          zoomRef.current
+        );
+
+        const data =
+          selectedToolRef.current === ToolNames.DRAW
+            ? [...strokesData.current]
+            : [
+                {
+                  from: { ...lastMouseCoords.current },
+                  to: { ...currentMouseCoords },
+                  color: colorRef.current,
+                  strokeSize: strokeSizeRef.current,
+                },
+              ];
+
+        history.current.push({
+          toolType: selectedToolRef.current,
+          data,
+        });
+      }
+
       isDragging.current = false;
       isDrawing.current = false;
-      lastPos.current = null;
+      lastMouseCoords.current = { x: 0, y: 0 };
+      strokesData.current = [];
     };
 
     window.addEventListener("resize", setupCanvas);
@@ -189,7 +238,7 @@ export const useCanvas = (
       canvas.removeEventListener("mousemove", handleMouseMove);
       canvas.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [canvasRef, selectedTool, setupCanvas]);
+  }, [canvasRef, setupCanvas]);
 
   const clearCanvas = useCallback(() => {
     history.current = [];
@@ -198,7 +247,7 @@ export const useCanvas = (
 
   return {
     clearCanvas,
-    pan: pan.current,
+    pan: panCoords.current,
     zoom: zoomRef.current,
     isDrawing: isDrawing.current,
     isDragging: isDragging.current,
