@@ -49,12 +49,10 @@ export const useCanvas = (
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // const dpr = window.devicePixelRatio || 1;
-    const dpr = 1;
     const rect = canvas.getBoundingClientRect();
 
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
+    canvas.width = rect.width;
+    canvas.height = rect.height;
     canvas.style.width = `${rect.width}px`;
     canvas.style.height = `${rect.height}px`;
 
@@ -62,7 +60,7 @@ export const useCanvas = (
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     ctx.translate(pan.current.x, pan.current.y);
-    ctx.scale(zoomRef.current * dpr, zoomRef.current * dpr);
+    ctx.scale(zoomRef.current, zoomRef.current);
 
     drawHistory(ctx);
   }, [canvasRef, drawHistory]);
@@ -72,24 +70,19 @@ export const useCanvas = (
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // const dpr = window.devicePixelRatio || 1;
-    const dpr = 1;
-    const scale = zoomRef.current * dpr;
-    const newScale = zoom * dpr;
-
     const rect = canvas.getBoundingClientRect();
     const center = {
       x: rect.width / 2,
       y: rect.height / 2,
     };
 
-    const preZoomX = (center.x - pan.current.x) / scale;
-    const preZoomY = (center.y - pan.current.y) / scale;
+    const preZoomX = (center.x - pan.current.x) / zoomRef.current;
+    const preZoomY = (center.y - pan.current.y) / zoomRef.current;
 
     zoomRef.current = zoom;
 
-    pan.current.x = center.x - preZoomX * newScale;
-    pan.current.y = center.y - preZoomY * newScale;
+    pan.current.x = center.x - preZoomX * zoom;
+    pan.current.y = center.y - preZoomY * zoom;
 
     pan.current.x = Math.round(pan.current.x * 1000) / 1000;
     pan.current.y = Math.round(pan.current.y * 1000) / 1000;
@@ -109,8 +102,6 @@ export const useCanvas = (
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    // const dpr = window.devicePixelRatio || 1;
-    const dpr = 1;
 
     if (selectedTool === ToolNames.PAN) {
       canvas.style.cursor = "grab";
@@ -128,13 +119,11 @@ export const useCanvas = (
         panStart.current = { ...pan.current };
       } else if (selectedTool === ToolNames.DRAW) {
         isDrawing.current = true;
-        console.log(dpr);
         lastPos.current = getCanvasMouseCoords(
           e,
           canvas,
           pan.current,
-          zoomRef.current,
-          dpr
+          zoomRef.current
         );
       }
     };
@@ -162,8 +151,7 @@ export const useCanvas = (
           e,
           canvas,
           pan.current,
-          zoomRef.current,
-          dpr
+          zoomRef.current
         );
         ctx.strokeStyle = colorRef.current;
         ctx.lineWidth = strokeSizeRef.current;
@@ -189,15 +177,12 @@ export const useCanvas = (
       lastPos.current = null;
     };
 
-    const dpiQuery = window.matchMedia(`(resolution: ${dpr}dppx)`);
-    dpiQuery.addEventListener("change", setupCanvas);
     window.addEventListener("resize", setupCanvas);
     canvas.addEventListener("mousedown", handleMouseDown);
     canvas.addEventListener("mousemove", handleMouseMove);
     canvas.addEventListener("mouseup", handleMouseUp);
 
     return () => {
-      dpiQuery.removeEventListener("change", setupCanvas);
       window.removeEventListener("resize", setupCanvas);
       canvas.removeEventListener("mousedown", handleMouseDown);
       canvas.removeEventListener("mousemove", handleMouseMove);
