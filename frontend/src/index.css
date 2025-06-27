@@ -62,6 +62,9 @@ button {
   border: none;
   transition: background-color 0.3s ease;
   padding: 6px;
+  color: var(--color-teal);
+  font-weight: var(--font-weight-bold);
+  white-space: nowrap;
 }
 
 button:hover {

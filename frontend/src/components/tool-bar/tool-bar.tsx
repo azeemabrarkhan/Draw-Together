@@ -57,7 +57,6 @@ const ToolBar = () => {
           ></div>
         </button>
       ))}
-      <span className={styles.divider}>---</span>
       <input
         type="color"
         className={`${styles.option} ${styles["color-selector"]}`}
