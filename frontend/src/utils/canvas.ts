@@ -41,6 +41,11 @@ export const drawOnCanvas = (
       canvasContext.lineTo(to.x, to.y);
       break;
 
+    case ToolTypes.LINE:
+      canvasContext.moveTo(from.x, from.y);
+      canvasContext.lineTo(to.x, to.y);
+      break;
+
     case ToolTypes.CIRCLE:
       const radius = Math.sqrt(width ** 2 + height ** 2) / 2;
       canvasContext.beginPath();
