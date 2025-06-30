@@ -1,7 +1,7 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { ToolTypes } from "../../enums/toolTypes";
 import styles from "./styles.module.css";
-import { ToolBarContext } from "../../contexts/toolbar-context";
+import type { HomeStateType } from "../../pages/home/home";
 
 const TOOLS = Object.values(ToolTypes).map((tool) => ({
   name: tool,
@@ -10,10 +10,13 @@ const TOOLS = Object.values(ToolTypes).map((tool) => ({
 
 const STROKE_SIZES = [1, 2, 3, 4, 5];
 
-const ToolBar = () => {
+type ToolBarPropsType = HomeStateType & {
+  setToolBarConfig: React.Dispatch<React.SetStateAction<HomeStateType>>;
+};
+
+const ToolBar = (props: ToolBarPropsType) => {
   const [isSizeToolTipOpen, setIsSizeToolTipOpen] = useState(false);
-  const { selectedTool, color, strokeSize, setToolBarConfig } =
-    useContext(ToolBarContext);
+  const { selectedTool, color, strokeSize, setToolBarConfig } = props;
 
   const handleToolSelect = (toolType: ToolTypes) => {
     setToolBarConfig((prevConfig) => ({

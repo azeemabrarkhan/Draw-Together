@@ -1,17 +1,19 @@
-import { useRef, useState, useContext } from "react";
-import { ToolBarContext } from "../../contexts/toolbar-context";
+import { useRef, useState } from "react";
 import { useCanvas } from "../../hooks/useCanvas";
 
 import styles from "./styles.module.css";
+import type { HomeStateType } from "../../pages/home/home";
 
 const MIN_ZOOM = 0.5;
 const MAX_ZOOM = 5;
 const ZOOM_STEP = 0.5;
 
-const CanvasBoard = () => {
+type CanvasBoardPropsType = HomeStateType;
+
+const CanvasBoard = (props: CanvasBoardPropsType) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [zoom, setZoom] = useState(0.5);
-  const { color, strokeSize, selectedTool } = useContext(ToolBarContext);
+  const { color, strokeSize, selectedTool } = props;
 
   useCanvas(canvasRef, zoom, color, strokeSize, selectedTool);
 
