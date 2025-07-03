@@ -58,13 +58,15 @@ a:hover {
 
 button {
   border-radius: 12%;
-  background-color: var(--color-sky);
   border: none;
   transition: background-color 0.3s ease;
   padding: 6px;
-  color: var(--color-teal);
-  font-weight: var(--font-weight-bold);
   white-space: nowrap;
+  font-weight: var(--font-weight-bold);
+  font-size: 14px;
+  color: var(--color-teal);
+  background-color: var(--color-sky);
+  outline: 2px solid var(--color-black);
 }
 
 button:hover {

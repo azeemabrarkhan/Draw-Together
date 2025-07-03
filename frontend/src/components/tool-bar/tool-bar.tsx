@@ -1,19 +1,23 @@
-import { useContext, useState } from "react";
-import { ToolTypes } from "../../enums/toolTypes";
+import { useState } from "react";
+import type { HomeStateType } from "../../pages";
+import { ToolTypes } from "../../enums";
+
 import styles from "./styles.module.css";
-import { ToolBarContext } from "../../contexts/toolbar-context";
 
 const TOOLS = Object.values(ToolTypes).map((tool) => ({
   name: tool,
   icon: `url("/icons/${tool}.png")`,
 }));
 
-const STROKE_SIZES = [1, 2, 3, 4, 5];
+const STROKE_SIZES = [2, 4, 6, 8, 10];
 
-const ToolBar = () => {
+type ToolBarPropsType = HomeStateType & {
+  setToolBarConfig: React.Dispatch<React.SetStateAction<HomeStateType>>;
+};
+
+export const ToolBar = (props: ToolBarPropsType) => {
   const [isSizeToolTipOpen, setIsSizeToolTipOpen] = useState(false);
-  const { selectedTool, color, strokeSize, setToolBarConfig } =
-    useContext(ToolBarContext);
+  const { selectedTool, color, strokeSize, setToolBarConfig } = props;
 
   const handleToolSelect = (toolType: ToolTypes) => {
     setToolBarConfig((prevConfig) => ({
@@ -32,7 +36,7 @@ const ToolBar = () => {
   const handleStrokeSizeSelect = (strokeSize: number) => {
     setToolBarConfig((prevConfig) => ({
       ...prevConfig,
-      strokeSize: strokeSize * 2,
+      strokeSize: strokeSize,
     }));
     toggleSizeToolTip();
   };
@@ -72,19 +76,19 @@ const ToolBar = () => {
         >
           Size
         </button>
-        {isSizeToolTipOpen && (
-          <div className={styles.sizeToolTip}>
-            {STROKE_SIZES.map((size) => (
-              <button
-                className={size === strokeSize ? styles.selected : ""}
-                onClick={() => handleStrokeSizeSelect(size)}
-              >{`Stroke ${size}`}</button>
-            ))}
-          </div>
-        )}
+        {isSizeToolTipOpen &&
+          STROKE_SIZES.map((size) => (
+            <button
+              key={size}
+              className={`${styles.sizes} ${
+                size === strokeSize ? styles.selected : ""
+              }`}
+              onClick={() => handleStrokeSizeSelect(size)}
+            >
+              {size / 2}
+            </button>
+          ))}
       </div>
     </div>
   );
 };
-
-export default ToolBar;

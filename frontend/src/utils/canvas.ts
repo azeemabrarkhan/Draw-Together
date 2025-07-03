@@ -1,13 +1,60 @@
 import { ToolTypes } from "../enums/toolTypes";
 import type { Coordinates } from "../models/coordinates";
+import type { StrokeHistory } from "../models/strokes";
+
+export const setupCanvas = (
+  canvas: HTMLCanvasElement | null,
+  panCoords: Coordinates,
+  zoom: number,
+  history: StrokeHistory[]
+) => {
+  if (!canvas) return;
+  const canvasContext = canvas.getContext("2d");
+  if (!canvasContext) return;
+
+  const rect = canvas.getBoundingClientRect();
+
+  canvas.width = rect.width;
+  canvas.height = rect.height;
+  canvas.style.width = `${rect.width}px`;
+  canvas.style.height = `${rect.height}px`;
+
+  canvasContext.setTransform(1, 0, 0, 1, 0, 0);
+  canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+
+  canvasContext.translate(panCoords.x, panCoords.y);
+  canvasContext.scale(zoom, zoom);
+
+  drawHistory(canvas, history);
+};
+
+export const drawHistory = (
+  canvas: HTMLCanvasElement | null,
+  history: StrokeHistory[]
+) => {
+  if (!canvas) return;
+
+  history.forEach((stroke) =>
+    stroke.data.forEach((data) =>
+      drawOnCanvas(
+        data.from,
+        data.to,
+        canvas,
+        stroke.toolType,
+        data.color,
+        data.strokeSize
+      )
+    )
+  );
+};
 
 export const getCanvasMouseCoords = (
-  e: MouseEvent,
+  e: React.MouseEvent<HTMLCanvasElement>,
   canvas: HTMLCanvasElement,
   pan: Coordinates,
   zoom: number
 ) => {
-  const rect = canvas.getBoundingClientRect();
+  const rect = canvas?.getBoundingClientRect();
 
   const rawX = e.clientX - rect.left;
   const rawY = e.clientY - rect.top;
@@ -21,11 +68,13 @@ export const getCanvasMouseCoords = (
 export const drawOnCanvas = (
   from: Coordinates,
   to: Coordinates,
-  canvasContext: CanvasRenderingContext2D | null,
+  canvas: HTMLCanvasElement | null,
   toolType: ToolTypes,
   color: string,
   strokeWidth: number
 ) => {
+  if (!canvas) return;
+  const canvasContext = canvas.getContext("2d");
   if (!canvasContext) return;
 
   const width = to.x - from.x;

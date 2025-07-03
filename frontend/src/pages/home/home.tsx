@@ -1,15 +1,26 @@
-import CanvasBoard from "../../components/canvas-board/canvas-board";
-import ToolBar from "../../components/tool-bar/tool-bar";
+import { useState } from "react";
+import { CanvasBoard, ToolBar } from "../../components";
+import { ToolTypes } from "../../enums";
 
 import styles from "./styles.module.css";
 
-const Home = () => {
+export type HomeStateType = {
+  selectedTool: ToolTypes;
+  color: string;
+  strokeSize: number;
+};
+
+export const Home = () => {
+  const [toolBarConfig, setToolBarConfig] = useState<HomeStateType>({
+    selectedTool: ToolTypes.DRAW,
+    color: "#000000",
+    strokeSize: 2,
+  });
+
   return (
     <div className={styles.home}>
-      <ToolBar />
-      <CanvasBoard />
+      <ToolBar {...toolBarConfig} setToolBarConfig={setToolBarConfig} />
+      <CanvasBoard {...toolBarConfig} />
     </div>
   );
 };
-
-export default Home;
