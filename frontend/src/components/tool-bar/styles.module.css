@@ -1,4 +1,4 @@
-.tool-bar {
+.tool_bar {
   max-width: 50px;
   background-color: var(--color-teal);
   padding: 10px 5px;
@@ -31,7 +31,7 @@
     width: auto;
   }
 
-  .sizeButtonContainer {
+  .size_button_container {
     display: flex;
     gap: 10px;
     align-items: center;

@@ -46,7 +46,7 @@ export const ToolBar = (props: ToolBarPropsType) => {
   };
 
   return (
-    <div className={styles["tool-bar"]}>
+    <div className={styles["tool_bar"]}>
       {TOOLS.map((tool) => (
         <button
           className={`${styles.option} ${
@@ -67,7 +67,7 @@ export const ToolBar = (props: ToolBarPropsType) => {
         value={color}
         onChange={(e) => handleColorSelect(e)}
       ></input>
-      <div className={styles.sizeButtonContainer}>
+      <div className={styles["size_button_container"]}>
         <button
           className={`${styles.option} ${
             isSizeToolTipOpen ? styles.selected : ""
