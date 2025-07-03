@@ -3,8 +3,8 @@ import styles from "./styles.module.css";
 
 type ButtonPropsType = {
   isSelected: boolean;
-  isDisabled: boolean;
   onClick: () => void;
+  isDisabled?: boolean;
   size?: ButtonSizes;
   url?: string;
   text?: string;
