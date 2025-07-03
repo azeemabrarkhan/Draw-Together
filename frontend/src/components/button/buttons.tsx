@@ -3,6 +3,7 @@ import styles from "./styles.module.css";
 
 type ButtonPropsType = {
   isSelected: boolean;
+  isDisabled: boolean;
   onClick: () => void;
   size?: ButtonSizes;
   url?: string;
@@ -11,6 +12,7 @@ type ButtonPropsType = {
 
 export const Button = ({
   isSelected,
+  isDisabled,
   onClick,
   size,
   url,
@@ -22,6 +24,7 @@ export const Button = ({
         size === ButtonSizes.SMALL ? styles.small : ""
       } ${isSelected ? styles.selected : ""}`}
       onClick={onClick}
+      disabled={isDisabled}
     >
       {url && (
         <div className={styles.icon} style={{ backgroundImage: url }}></div>
