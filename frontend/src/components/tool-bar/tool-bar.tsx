@@ -4,6 +4,7 @@ import { ToolTypes } from "../../enums";
 
 import styles from "./styles.module.css";
 import { Button } from "../button/buttons";
+import { ButtonSizes } from "../../enums/button-sizes";
 
 const TOOLS = Object.values(ToolTypes).map((tool) => ({
   name: tool,
@@ -58,7 +59,7 @@ export const ToolBar = (props: ToolBarPropsType) => {
       ))}
       <input
         type="color"
-        className={`${styles.option} ${styles["color-selector"]}`}
+        className={styles["color-selector"]}
         value={color}
         onChange={(e) => handleColorSelect(e)}
       ></input>
@@ -70,15 +71,13 @@ export const ToolBar = (props: ToolBarPropsType) => {
         />
         {isSizeToolTipOpen &&
           STROKE_SIZES.map((size) => (
-            <button
+            <Button
               key={size}
-              className={`${styles.sizes} ${
-                size === strokeSize ? styles.selected : ""
-              }`}
+              isSelected={size === strokeSize}
               onClick={() => handleStrokeSizeSelect(size)}
-            >
-              {size / 2}
-            </button>
+              text={`${size / 2}`}
+              size={ButtonSizes.SMALL}
+            />
           ))}
       </div>
     </div>
