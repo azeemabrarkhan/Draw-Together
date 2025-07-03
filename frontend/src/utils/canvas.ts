@@ -21,6 +21,8 @@ export const setupCanvas = (
 
   canvasContext.setTransform(1, 0, 0, 1, 0, 0);
   canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+  canvasContext.fillStyle = "#ffffff";
+  canvasContext.fillRect(0, 0, canvas.width, canvas.height);
 
   canvasContext.translate(panCoords.x, panCoords.y);
   canvasContext.scale(zoom, zoom);

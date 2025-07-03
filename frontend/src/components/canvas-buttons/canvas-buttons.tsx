@@ -2,6 +2,7 @@ import { Button } from "../";
 import { CanvasActions } from "../../enums";
 import type { Coordinates, StrokeHistory } from "../../models";
 import { setupCanvas } from "../../utils/canvas";
+import { downloadFile } from "../../utils/file";
 
 import styles from "./styles.module.css";
 
@@ -31,22 +32,28 @@ export const CanvasButtons = ({
         const removedHistoryItem = history.current.pop();
         if (removedHistoryItem) {
           redoHistory.current.push(removedHistoryItem);
+          setupCanvas(canvas.current, panCoords.current, zoom, history.current);
         }
-        setupCanvas(canvas.current, panCoords.current, zoom, history.current);
         break;
 
       case CanvasActions.REDO:
         const removedRedoHistoryItem = redoHistory.current.pop();
         if (removedRedoHistoryItem) {
           history.current.push(removedRedoHistoryItem);
+          setupCanvas(canvas.current, panCoords.current, zoom, history.current);
         }
-        setupCanvas(canvas.current, panCoords.current, zoom, history.current);
         break;
 
       case CanvasActions.SAVE:
+        if (!canvas.current) return;
+
+        downloadFile(canvas.current.toDataURL("image/jpeg", 1), "Canvas");
         break;
 
       case CanvasActions.EXPORT:
+        const jsonString = JSON.stringify(history.current, null, 2);
+        const blob = new Blob([jsonString], { type: "application/json" });
+        downloadFile(URL.createObjectURL(blob), `history.json`);
         break;
 
       case CanvasActions.IMPORT:
