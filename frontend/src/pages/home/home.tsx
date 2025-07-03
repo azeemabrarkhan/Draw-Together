@@ -1,7 +1,6 @@
 import { useState } from "react";
-import CanvasBoard from "../../components/canvas-board/canvas-board";
-import ToolBar from "../../components/tool-bar/tool-bar";
-import { ToolTypes } from "../../enums/toolTypes";
+import { CanvasBoard, ToolBar } from "../../components";
+import { ToolTypes } from "../../enums";
 
 import styles from "./styles.module.css";
 
@@ -11,7 +10,7 @@ export type HomeStateType = {
   strokeSize: number;
 };
 
-const Home = () => {
+export const Home = () => {
   const [toolBarConfig, setToolBarConfig] = useState<HomeStateType>({
     selectedTool: ToolTypes.DRAW,
     color: "#000000",
@@ -25,5 +24,3 @@ const Home = () => {
     </div>
   );
 };
-
-export default Home;

@@ -1,5 +1,5 @@
-import NavBar from "./components/nav-bar/nav-bar";
-import Home from "./pages/home/home";
+import { NavBar } from "./components";
+import { Home } from "./pages";
 
 import styles from "./App.module.css";
 

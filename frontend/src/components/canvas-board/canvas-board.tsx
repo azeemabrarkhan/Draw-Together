@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { ToolTypes } from "../../enums/toolTypes";
-import type { HomeStateType } from "../../pages/home/home";
-import type { Coordinates } from "../../models/coordinates";
-import type { StrokeData, StrokeHistory } from "../../models/strokes";
+import type { HomeStateType } from "../../pages";
+import type { Coordinates, StrokeData, StrokeHistory } from "../../models";
+import { ToolTypes } from "../../enums";
 
 import styles from "./styles.module.css";
 
@@ -18,7 +17,7 @@ const ZOOM_STEP = 0.5;
 
 type CanvasBoardPropsType = HomeStateType;
 
-const CanvasBoard = ({
+export const CanvasBoard = ({
   color,
   strokeSize,
   selectedTool,
@@ -243,5 +242,3 @@ const CanvasBoard = ({
     />
   );
 };
-
-export default CanvasBoard;

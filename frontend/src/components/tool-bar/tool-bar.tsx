@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { ToolTypes } from "../../enums/toolTypes";
+import type { HomeStateType } from "../../pages";
+import { ToolTypes } from "../../enums";
+
 import styles from "./styles.module.css";
-import type { HomeStateType } from "../../pages/home/home";
 
 const TOOLS = Object.values(ToolTypes).map((tool) => ({
   name: tool,
@@ -14,7 +15,7 @@ type ToolBarPropsType = HomeStateType & {
   setToolBarConfig: React.Dispatch<React.SetStateAction<HomeStateType>>;
 };
 
-const ToolBar = (props: ToolBarPropsType) => {
+export const ToolBar = (props: ToolBarPropsType) => {
   const [isSizeToolTipOpen, setIsSizeToolTipOpen] = useState(false);
   const { selectedTool, color, strokeSize, setToolBarConfig } = props;
 
@@ -89,5 +90,3 @@ const ToolBar = (props: ToolBarPropsType) => {
     </div>
   );
 };
-
-export default ToolBar;
