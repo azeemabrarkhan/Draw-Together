@@ -76,16 +76,18 @@ export const ToolBar = (props: ToolBarPropsType) => {
         >
           Size
         </button>
-        {isSizeToolTipOpen && (
-          <div className={styles.sizeToolTip}>
-            {STROKE_SIZES.map((size) => (
-              <button
-                className={size === strokeSize ? styles.selected : ""}
-                onClick={() => handleStrokeSizeSelect(size)}
-              >{`Stroke ${size / 2}`}</button>
-            ))}
-          </div>
-        )}
+        {isSizeToolTipOpen &&
+          STROKE_SIZES.map((size) => (
+            <button
+              key={size}
+              className={`${styles.sizes} ${
+                size === strokeSize ? styles.selected : ""
+              }`}
+              onClick={() => handleStrokeSizeSelect(size)}
+            >
+              {size / 2}
+            </button>
+          ))}
       </div>
     </div>
   );
