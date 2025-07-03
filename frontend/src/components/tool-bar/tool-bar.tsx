@@ -3,6 +3,7 @@ import type { HomeStateType } from "../../pages";
 import { ToolTypes } from "../../enums";
 
 import styles from "./styles.module.css";
+import { Button } from "../button/buttons";
 
 const TOOLS = Object.values(ToolTypes).map((tool) => ({
   name: tool,
@@ -48,18 +49,12 @@ export const ToolBar = (props: ToolBarPropsType) => {
   return (
     <div className={styles["tool_bar"]}>
       {TOOLS.map((tool) => (
-        <button
-          className={`${styles.option} ${
-            tool.name === selectedTool ? styles.selected : ""
-          }`}
+        <Button
           key={tool.name}
+          isSelected={tool.name === selectedTool}
           onClick={() => handleToolSelect(tool.name)}
-        >
-          <div
-            className={styles.icon}
-            style={{ backgroundImage: tool.icon }}
-          ></div>
-        </button>
+          url={tool.icon}
+        />
       ))}
       <input
         type="color"
@@ -68,14 +63,11 @@ export const ToolBar = (props: ToolBarPropsType) => {
         onChange={(e) => handleColorSelect(e)}
       ></input>
       <div className={styles["size_button_container"]}>
-        <button
-          className={`${styles.option} ${
-            isSizeToolTipOpen ? styles.selected : ""
-          }`}
+        <Button
+          isSelected={isSizeToolTipOpen}
           onClick={toggleSizeToolTip}
-        >
-          Size
-        </button>
+          text="Size"
+        />
         {isSizeToolTipOpen &&
           STROKE_SIZES.map((size) => (
             <button
