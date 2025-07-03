@@ -33,6 +33,7 @@ export const CanvasBoard = ({
 
   const strokesData = useRef<StrokeData[]>([]);
   const history = useRef<StrokeHistory[]>([]);
+  const redoHistory = useRef<StrokeHistory[]>([]);
 
   const [zoom, setZoom] = useState({ current: MIN_ZOOM, last: MIN_ZOOM });
 
@@ -242,7 +243,13 @@ export const CanvasBoard = ({
         onMouseUp={handleMouseUp}
         onWheel={handleZoom}
       />
-      <CanvasButtons />
+      <CanvasButtons
+        canvas={canvasRef}
+        panCoords={panCoords}
+        history={history}
+        redoHistory={redoHistory}
+        zoom={zoom.current}
+      />
     </div>
   );
 };
