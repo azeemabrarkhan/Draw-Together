@@ -15,7 +15,7 @@ const Home = () => {
   const [toolBarConfig, setToolBarConfig] = useState<HomeStateType>({
     selectedTool: ToolTypes.DRAW,
     color: "#000000",
-    strokeSize: 1,
+    strokeSize: 2,
   });
 
   return (

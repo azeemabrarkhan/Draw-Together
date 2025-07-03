@@ -8,7 +8,7 @@ const TOOLS = Object.values(ToolTypes).map((tool) => ({
   icon: `url("/icons/${tool}.png")`,
 }));
 
-const STROKE_SIZES = [1, 2, 3, 4, 5];
+const STROKE_SIZES = [2, 4, 6, 8, 10];
 
 type ToolBarPropsType = HomeStateType & {
   setToolBarConfig: React.Dispatch<React.SetStateAction<HomeStateType>>;
@@ -35,7 +35,7 @@ const ToolBar = (props: ToolBarPropsType) => {
   const handleStrokeSizeSelect = (strokeSize: number) => {
     setToolBarConfig((prevConfig) => ({
       ...prevConfig,
-      strokeSize: strokeSize * 2,
+      strokeSize: strokeSize,
     }));
     toggleSizeToolTip();
   };
@@ -81,7 +81,7 @@ const ToolBar = (props: ToolBarPropsType) => {
               <button
                 className={size === strokeSize ? styles.selected : ""}
                 onClick={() => handleStrokeSizeSelect(size)}
-              >{`Stroke ${size}`}</button>
+              >{`Stroke ${size / 2}`}</button>
             ))}
           </div>
         )}
