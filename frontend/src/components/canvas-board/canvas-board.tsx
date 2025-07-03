@@ -233,7 +233,7 @@ export const CanvasBoard = ({
   console.log("rendering");
 
   return (
-    <>
+    <div className={styles["canvas_container"]}>
       <canvas
         className={styles.canvas}
         ref={canvasRef}
@@ -243,6 +243,6 @@ export const CanvasBoard = ({
         onWheel={handleZoom}
       />
       <CanvasButtons />
-    </>
+    </div>
   );
 };

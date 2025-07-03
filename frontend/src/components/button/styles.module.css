@@ -15,10 +15,10 @@
     min-width: 20px;
     height: 20px;
   }
-}
 
-.selected,
-.selected:hover {
-  background-color: var(--color-medium-teal);
-  color: var(--color-black);
+  &.selected,
+  &.selected:hover {
+    background-color: var(--color-medium-teal);
+    color: var(--color-black);
+  }
 }

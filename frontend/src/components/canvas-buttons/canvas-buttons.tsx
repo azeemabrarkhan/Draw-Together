@@ -1,4 +1,5 @@
 import { CanvasActions } from "../../enums";
+import { Button } from "../button/buttons";
 
 import styles from "./styles.module.css";
 
@@ -13,16 +14,12 @@ export const CanvasButtons = () => {
   return (
     <div className={styles["canvas_buttons"]}>
       {CANVAS_BUTTONS.map((action) => (
-        <button
+        <Button
           key={action.name}
-          className={styles["action_button"]}
+          isSelected={false}
           onClick={() => handleCanvasAction(action.name)}
-        >
-          <div
-            className={styles.icon}
-            style={{ backgroundImage: action.icon }}
-          ></div>
-        </button>
+          url={action.icon}
+        />
       ))}
     </div>
   );

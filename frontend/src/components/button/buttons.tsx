@@ -1,4 +1,4 @@
-import { ButtonSizes } from "../../enums/button-sizes";
+import { ButtonSizes } from "../../enums";
 import styles from "./styles.module.css";
 
 type ButtonPropsType = {

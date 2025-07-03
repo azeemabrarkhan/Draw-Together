@@ -1,10 +1,9 @@
 import { useState } from "react";
 import type { HomeStateType } from "../../pages";
-import { ToolTypes } from "../../enums";
+import { ToolTypes, ButtonSizes } from "../../enums";
 
 import styles from "./styles.module.css";
 import { Button } from "../button/buttons";
-import { ButtonSizes } from "../../enums/button-sizes";
 
 const TOOLS = Object.values(ToolTypes).map((tool) => ({
   name: tool,
