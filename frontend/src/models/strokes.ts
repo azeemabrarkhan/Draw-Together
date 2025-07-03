@@ -1,5 +1,5 @@
 import type { Coordinates } from "./coordinates";
-import { ToolTypes } from "../enums/toolTypes";
+import { ToolTypes } from "../enums/tool-types";
 
 export type StrokeData = {
   from: Coordinates;

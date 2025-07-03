@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { CanvasButtons } from "../";
 import type { HomeStateType } from "../../pages";
 import type { Coordinates, StrokeData, StrokeHistory } from "../../models";
 import { ToolTypes } from "../../enums";
@@ -232,13 +233,16 @@ export const CanvasBoard = ({
   console.log("rendering");
 
   return (
-    <canvas
-      className={styles.canvas}
-      ref={canvasRef}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onWheel={handleZoom}
-    />
+    <>
+      <canvas
+        className={styles.canvas}
+        ref={canvasRef}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onWheel={handleZoom}
+      />
+      <CanvasButtons />
+    </>
   );
 };

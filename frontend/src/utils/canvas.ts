@@ -1,4 +1,4 @@
-import { ToolTypes } from "../enums/toolTypes";
+import { ToolTypes } from "../enums/tool-types";
 import type { Coordinates } from "../models/coordinates";
 import type { StrokeHistory } from "../models/strokes";
 
