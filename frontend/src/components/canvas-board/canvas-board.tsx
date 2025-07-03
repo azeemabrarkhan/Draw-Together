@@ -37,6 +37,14 @@ const CanvasBoard = ({
   const [zoom, setZoom] = useState({ current: MIN_ZOOM, last: MIN_ZOOM });
 
   useEffect(() => {
+    const handleResize = () => {
+      setupCanvas(
+        canvasRef.current,
+        panCoords.current,
+        zoom.current,
+        history.current
+      );
+    };
     window.addEventListener("resize", handleResize);
 
     return () => window.removeEventListener("resize", handleResize);
@@ -76,15 +84,6 @@ const CanvasBoard = ({
       history.current
     );
   }, [zoom.current]);
-
-  const handleResize = () => {
-    setupCanvas(
-      canvasRef.current,
-      panCoords.current,
-      zoom.current,
-      history.current
-    );
-  };
 
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
@@ -237,10 +236,10 @@ const CanvasBoard = ({
     <canvas
       className={styles.canvas}
       ref={canvasRef}
-      onWheel={handleZoom}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
+      onWheel={handleZoom}
     />
   );
 };
