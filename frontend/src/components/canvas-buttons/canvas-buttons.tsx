@@ -64,6 +64,21 @@ export const CanvasButtons = ({
     }
   };
 
+  const getButtonState = (actionName: CanvasActions) => {
+    switch (actionName) {
+      case CanvasActions.EXPORT:
+      case CanvasActions.SAVE:
+      case CanvasActions.UNDO:
+        return history.current.length === 0;
+
+      case CanvasActions.REDO:
+        return redoHistory.current.length === 0;
+
+      case CanvasActions.IMPORT:
+        return false;
+    }
+  };
+
   return (
     <div className={styles["canvas_buttons"]}>
       {CANVAS_BUTTONS.map((action) => (
@@ -72,6 +87,7 @@ export const CanvasButtons = ({
           isSelected={false}
           onClick={() => handleCanvasAction(action.name)}
           url={action.icon}
+          isDisabled={getButtonState(action.name)}
         />
       ))}
     </div>
