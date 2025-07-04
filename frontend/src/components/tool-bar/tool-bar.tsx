@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Button } from "../";
-import type { HomeStateType } from "../../pages";
-import { ToolTypes, ButtonSizes } from "../../enums";
+import type { HomeStateAction } from "../../pages";
+import type { Coordinates, StrokeHistory } from "../../models";
+import { ToolTypes, ButtonSizes, HomeStateActionTypes } from "../../enums";
 
 import styles from "./styles.module.css";
 
@@ -12,33 +13,42 @@ const TOOLS = Object.values(ToolTypes).map((tool) => ({
 
 const STROKE_SIZES = [2, 4, 6, 8, 10];
 
-type ToolBarPropsType = HomeStateType & {
-  setToolBarConfig: React.Dispatch<React.SetStateAction<HomeStateType>>;
+type ToolBarPropsType = {
+  color: string;
+  history: StrokeHistory[];
+  redoHistory: StrokeHistory[];
+  selectedTool: ToolTypes;
+  strokeSize: number;
+  zoom: { current: number; last: number };
+  setCanvasConfig: React.ActionDispatch<[action: HomeStateAction]>;
+  canvasRef: React.RefObject<HTMLCanvasElement | null>;
+  panCoords: React.RefObject<Coordinates>;
 };
 
 export const ToolBar = (props: ToolBarPropsType) => {
   const [isSizeToolTipOpen, setIsSizeToolTipOpen] = useState(false);
-  const { selectedTool, color, strokeSize, setToolBarConfig } = props;
+  const { selectedTool, color, strokeSize, setCanvasConfig } = props;
 
   const handleToolSelect = (toolType: ToolTypes) => {
-    setToolBarConfig((prevConfig) => ({
-      ...prevConfig,
-      selectedTool: toolType,
-    }));
+    setCanvasConfig({
+      type: HomeStateActionTypes.SELECTED_TOOL,
+      payload: toolType,
+    });
   };
 
   const handleColorSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setToolBarConfig((prevConfig) => ({
-      ...prevConfig,
-      color: e.target.value,
-    }));
+    setCanvasConfig({
+      type: HomeStateActionTypes.COLOR,
+      payload: e.target.value,
+    });
   };
 
   const handleStrokeSizeSelect = (strokeSize: number) => {
-    setToolBarConfig((prevConfig) => ({
-      ...prevConfig,
-      strokeSize: strokeSize,
-    }));
+    setCanvasConfig({
+      type: HomeStateActionTypes.STROKE_SIZE,
+      payload: strokeSize,
+    });
+
     toggleSizeToolTip();
   };
 
@@ -68,16 +78,19 @@ export const ToolBar = (props: ToolBarPropsType) => {
           onClick={toggleSizeToolTip}
           text="Size"
         />
-        {isSizeToolTipOpen &&
-          STROKE_SIZES.map((size) => (
-            <Button
-              key={size}
-              isSelected={size === strokeSize}
-              onClick={() => handleStrokeSizeSelect(size)}
-              text={`${size / 2}`}
-              size={ButtonSizes.SMALL}
-            />
-          ))}
+        {isSizeToolTipOpen && (
+          <div className={styles.sizes}>
+            {STROKE_SIZES.map((size) => (
+              <Button
+                key={size}
+                isSelected={size === strokeSize}
+                onClick={() => handleStrokeSizeSelect(size)}
+                text={`${size / 2}`}
+                size={ButtonSizes.SMALL}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
