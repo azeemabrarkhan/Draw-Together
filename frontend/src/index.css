@@ -7,6 +7,9 @@
   --color-black: #000000;
   --color-teal: #00796b;
   --color-medium-teal: #4db6ac;
+  --color-light-grey: #b0c4c8;
+  --color-medium-grey: #94a8ab;
+  --color-dark-grey: #5a6a6d;
 
   /* Font Weight Variables */
   --font-weight-normal: 400;
@@ -57,25 +60,25 @@ a:hover {
 }
 
 button {
+  color: var(--color-teal);
+  background-color: var(--color-sky);
+  outline: 2px solid var(--color-black);
   border-radius: 12%;
   border: none;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, outline 0.3s ease, opacity 0.3s ease;
   padding: 6px;
   white-space: nowrap;
   font-weight: var(--font-weight-bold);
   font-size: 14px;
-  color: var(--color-teal);
-  background-color: var(--color-sky);
-  outline: 2px solid var(--color-black);
   cursor: pointer;
 }
 
 button:disabled {
-  color: var(--color-medium-teal);
-  background-color: var(--color-light-cyan);
-  outline: 2px solid var(--color-sky);
-  cursor: not-allowed;
+  background-color: var(--color-light-grey);
+  outline: 2px solid var(--color-medium-grey);
+  color: var(--color-dark-grey);
   opacity: 0.6;
+  cursor: not-allowed;
   pointer-events: none;
 }
 
