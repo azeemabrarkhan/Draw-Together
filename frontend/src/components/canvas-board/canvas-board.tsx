@@ -210,6 +210,7 @@ export const CanvasBoard = ({
     isDragging.current = false;
     isDrawing.current = false;
     lastMouseCoords.current = { x: 0, y: 0 };
+    lastPanCoords.current = { x: 0, y: 0 };
     strokesData.current = [];
   };
 
