@@ -52,6 +52,10 @@ export const CanvasBoard = ({
   }, []);
 
   useEffect(() => {
+    setupCanvas(canvasRef.current, panCoords.current, zoom.current, history);
+  }, [history, redoHistory]);
+
+  useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas) {
       canvas.style.cursor =
@@ -199,7 +203,7 @@ export const CanvasBoard = ({
             ];
 
       setCanvasConfig({
-        type: HomeStateActionTypes.HISTORY,
+        type: HomeStateActionTypes.ADD_HISTORY,
         payload: {
           toolType: selectedTool,
           data,
@@ -218,12 +222,10 @@ export const CanvasBoard = ({
     const direction = e.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP;
 
     setCanvasConfig({
-      type: HomeStateActionTypes.ZOOM,
+      type: HomeStateActionTypes.SET_ZOOM,
       payload: zoom.current + direction,
     });
   };
-
-  console.log("rendering", zoom.current);
 
   return (
     <canvas

@@ -20,30 +20,48 @@ type HomeStateType = {
 
 export type HomeStateAction = {
   type: HomeStateActionTypes;
-  payload: string | StrokeHistory | ToolTypes | number;
+  payload?: string | StrokeHistory | ToolTypes | number;
 };
 
 const homeStateReducer = (state: HomeStateType, action: HomeStateAction) => {
-  // console.log(action);
-  // console.log((action.payload as number) < MIN_ZOOM);
   switch (action.type) {
-    case HomeStateActionTypes.COLOR:
+    case HomeStateActionTypes.SET_COLOR:
       return { ...state, color: action.payload as string };
-    case HomeStateActionTypes.HISTORY:
+    case HomeStateActionTypes.ADD_HISTORY:
       return {
         ...state,
         history: state.history.concat(action.payload as StrokeHistory),
       };
-    case HomeStateActionTypes.REDO_HISTORY:
+    case HomeStateActionTypes.UNDO: {
+      const historyCopy = [...state.history];
+      const lastHistoryItem = historyCopy.pop();
+      const redoHistoryCopy = lastHistoryItem
+        ? [...state.redoHistory, lastHistoryItem]
+        : [...state.redoHistory];
+
       return {
         ...state,
-        redoHistory: state.redoHistory.concat(action.payload as StrokeHistory),
+        history: historyCopy,
+        redoHistory: redoHistoryCopy,
       };
-    case HomeStateActionTypes.SELECTED_TOOL:
+    }
+    case HomeStateActionTypes.REDO: {
+      const redoHistoryCopy = [...state.redoHistory];
+      const lastRedoHistoryItem = redoHistoryCopy.pop();
+      const historyCopy = lastRedoHistoryItem
+        ? [...state.history, lastRedoHistoryItem]
+        : [...state.history];
+      return {
+        ...state,
+        history: historyCopy,
+        redoHistory: redoHistoryCopy,
+      };
+    }
+    case HomeStateActionTypes.SET_TOOL:
       return { ...state, selectedTool: action.payload as ToolTypes };
-    case HomeStateActionTypes.STROKE_SIZE:
+    case HomeStateActionTypes.SET_STROKE_SIZE:
       return { ...state, strokeSize: action.payload as number };
-    case HomeStateActionTypes.ZOOM:
+    case HomeStateActionTypes.SET_ZOOM:
       if (
         (action.payload as number) < MIN_ZOOM ||
         (action.payload as number) > MAX_ZOOM

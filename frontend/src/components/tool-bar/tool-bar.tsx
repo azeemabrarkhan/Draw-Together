@@ -2,16 +2,27 @@ import { useState } from "react";
 import { Button } from "../";
 import type { HomeStateAction } from "../../pages";
 import type { Coordinates, StrokeHistory } from "../../models";
-import { ToolTypes, ButtonSizes, HomeStateActionTypes } from "../../enums";
+import { downloadFile } from "../../utils";
+import {
+  ToolTypes,
+  ButtonSizes,
+  HomeStateActionTypes,
+  CanvasActions,
+} from "../../enums";
 
 import styles from "./styles.module.css";
+
+const STROKE_SIZES = [2, 4, 6, 8, 10];
 
 const TOOLS = Object.values(ToolTypes).map((tool) => ({
   name: tool,
   icon: `url("/icons/${tool}.png")`,
 }));
 
-const STROKE_SIZES = [2, 4, 6, 8, 10];
+const CANVAS_ACTIONS = Object.values(CanvasActions).map((action) => ({
+  name: action,
+  icon: `url("/icons/${action}.png")`,
+}));
 
 type ToolBarPropsType = {
   color: string;
@@ -25,27 +36,36 @@ type ToolBarPropsType = {
   panCoords: React.RefObject<Coordinates>;
 };
 
-export const ToolBar = (props: ToolBarPropsType) => {
+export const ToolBar = ({
+  color,
+  history,
+  redoHistory,
+  selectedTool,
+  strokeSize,
+  zoom,
+  setCanvasConfig,
+  canvasRef,
+  panCoords,
+}: ToolBarPropsType) => {
   const [isSizeToolTipOpen, setIsSizeToolTipOpen] = useState(false);
-  const { selectedTool, color, strokeSize, setCanvasConfig } = props;
 
   const handleToolSelect = (toolType: ToolTypes) => {
     setCanvasConfig({
-      type: HomeStateActionTypes.SELECTED_TOOL,
+      type: HomeStateActionTypes.SET_TOOL,
       payload: toolType,
     });
   };
 
   const handleColorSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCanvasConfig({
-      type: HomeStateActionTypes.COLOR,
+      type: HomeStateActionTypes.SET_COLOR,
       payload: e.target.value,
     });
   };
 
   const handleStrokeSizeSelect = (strokeSize: number) => {
     setCanvasConfig({
-      type: HomeStateActionTypes.STROKE_SIZE,
+      type: HomeStateActionTypes.SET_STROKE_SIZE,
       payload: strokeSize,
     });
 
@@ -56,8 +76,67 @@ export const ToolBar = (props: ToolBarPropsType) => {
     setIsSizeToolTipOpen((prev) => !prev);
   };
 
+  const handleCanvasAction = (actionName: CanvasActions) => {
+    switch (actionName) {
+      case CanvasActions.UNDO:
+        setCanvasConfig({
+          type: HomeStateActionTypes.UNDO,
+        });
+        break;
+
+      case CanvasActions.REDO:
+        setCanvasConfig({
+          type: HomeStateActionTypes.REDO,
+        });
+        break;
+
+      case CanvasActions.SAVE:
+        if (!canvasRef.current) return;
+
+        downloadFile(canvasRef.current.toDataURL("image/jpeg", 1), "Canvas");
+        break;
+
+      case CanvasActions.EXPORT:
+        const jsonString = JSON.stringify(history, null, 2);
+        const blob = new Blob([jsonString], { type: "application/json" });
+        downloadFile(URL.createObjectURL(blob), `history.json`);
+        break;
+
+      case CanvasActions.IMPORT:
+        break;
+
+      default:
+        break;
+    }
+  };
+
+  const getButtonState = (actionName: CanvasActions) => {
+    switch (actionName) {
+      case CanvasActions.EXPORT:
+      case CanvasActions.SAVE:
+      case CanvasActions.UNDO:
+        return history.length === 0;
+
+      case CanvasActions.REDO:
+        return redoHistory.length === 0;
+
+      case CanvasActions.NEW:
+      case CanvasActions.IMPORT:
+        return false;
+    }
+  };
+
   return (
     <div className={styles["tool_bar"]}>
+      {CANVAS_ACTIONS.map((action) => (
+        <Button
+          key={action.name}
+          isSelected={false}
+          onClick={() => handleCanvasAction(action.name)}
+          url={action.icon}
+          isDisabled={getButtonState(action.name)}
+        />
+      ))}
       {TOOLS.map((tool) => (
         <Button
           key={tool.name}

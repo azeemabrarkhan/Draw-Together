@@ -1,8 +1,0 @@
-.canvas_buttons {
-  position: absolute;
-  right: 0;
-  top: 0;
-  display: flex;
-  flex-direction: column;
-  margin: 10px;
-}
