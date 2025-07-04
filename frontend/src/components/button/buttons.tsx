@@ -27,9 +27,9 @@ export const Button = ({
       disabled={isDisabled}
     >
       {url && (
-        <div className={styles.icon} style={{ backgroundImage: url }}></div>
+        <div className={styles.content} style={{ backgroundImage: url }}></div>
       )}
-      {text && text}
+      {text && <div className={styles.content}>{text}</div>}
     </button>
   );
 };

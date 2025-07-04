@@ -234,22 +234,13 @@ export const CanvasBoard = ({
   console.log("rendering");
 
   return (
-    <div className={styles["canvas_container"]}>
-      <canvas
-        className={styles.canvas}
-        ref={canvasRef}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onWheel={handleZoom}
-      />
-      <CanvasButtons
-        canvas={canvasRef}
-        panCoords={panCoords}
-        history={history}
-        redoHistory={redoHistory}
-        zoom={zoom.current}
-      />
-    </div>
+    <canvas
+      className={styles.canvas}
+      ref={canvasRef}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onWheel={handleZoom}
+    />
   );
 };
