@@ -6,7 +6,7 @@
   flex-wrap: wrap;
   gap: 10px;
 
-  .color-selector {
+  .color_selector {
     width: 40px;
     height: 40px;
     border-radius: 12%;

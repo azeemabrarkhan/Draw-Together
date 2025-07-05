@@ -100,6 +100,9 @@ export const Home = () => {
     <div className={styles.home}>
       <ToolBar {...props} />
       <CanvasBoard {...props} />
+      <span
+        className={styles.zoom_indicator}
+      >{`Zoom: ${canvasConfig.zoom.current}`}</span>
     </div>
   );
 };

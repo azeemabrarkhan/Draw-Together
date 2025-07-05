@@ -175,7 +175,7 @@ export const ToolBar = ({
       ))}
       <input
         type="color"
-        className={styles["color-selector"]}
+        className={styles["color_selector"]}
         value={color}
         onChange={(e) => handleColorSelect(e)}
       ></input>
