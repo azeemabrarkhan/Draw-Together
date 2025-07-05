@@ -78,6 +78,11 @@ export const ToolBar = ({
 
   const handleCanvasAction = (actionName: CanvasActions) => {
     switch (actionName) {
+      case CanvasActions.NEW:
+        setCanvasConfig({
+          type: HomeStateActionTypes.NEW_CANVAS,
+        });
+        break;
       case CanvasActions.UNDO:
         setCanvasConfig({
           type: HomeStateActionTypes.UNDO,

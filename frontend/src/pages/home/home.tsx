@@ -32,6 +32,12 @@ const homeStateReducer = (state: HomeStateType, action: HomeStateAction) => {
         ...state,
         history: state.history.concat(action.payload as StrokeHistory),
       };
+    case HomeStateActionTypes.NEW_CANVAS:
+      return {
+        ...state,
+        history: [],
+        redoHistory: [],
+      };
     case HomeStateActionTypes.UNDO: {
       const historyCopy = [...state.history];
       const lastHistoryItem = historyCopy.pop();
