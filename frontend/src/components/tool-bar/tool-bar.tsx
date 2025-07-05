@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "../";
 import { ZOOM_STEP, type HomeStateAction } from "../../pages";
 import type { Coordinates, StrokeHistory } from "../../models";
-import { downloadFile } from "../../utils";
+import { downloadFile, getCurrentTimeStamp } from "../../utils";
 import {
   ToolTypes,
   ButtonSizes,
@@ -13,6 +13,7 @@ import {
 import styles from "./styles.module.css";
 
 const STROKE_SIZES = [2, 4, 6, 8, 10];
+const STROKE_SIZE_BUTTON_ICON = `url("/icons/Stroke Size.png")`;
 
 const TOOLS = Object.values(ToolTypes).map((tool) => ({
   name: tool,
@@ -98,13 +99,19 @@ export const ToolBar = ({
       case CanvasActions.SAVE:
         if (!canvasRef.current) return;
 
-        downloadFile(canvasRef.current.toDataURL("image/jpeg", 1), "Canvas");
+        downloadFile(
+          canvasRef.current.toDataURL("image/jpeg", 1),
+          `${getCurrentTimeStamp()}-canvas`
+        );
         break;
 
       case CanvasActions.EXPORT:
         const jsonString = JSON.stringify(history, null, 2);
         const blob = new Blob([jsonString], { type: "application/json" });
-        downloadFile(URL.createObjectURL(blob), `history.json`);
+        downloadFile(
+          URL.createObjectURL(blob),
+          `${getCurrentTimeStamp()}-canvas.json`
+        );
         break;
 
       case CanvasActions.IMPORT:
@@ -176,7 +183,7 @@ export const ToolBar = ({
         <Button
           isSelected={isSizeToolTipOpen}
           onClick={toggleSizeToolTip}
-          text="Size"
+          url={STROKE_SIZE_BUTTON_ICON}
           tooltipText={isSizeToolTipOpen ? "" : "Stroke Size"}
         />
         {isSizeToolTipOpen && (
