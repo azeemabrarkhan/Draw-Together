@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
-import type { HomeStateType } from "../../pages";
+import { useEffect, useRef } from "react";
+import { ZOOM_STEP, type HomeStateAction } from "../../pages";
 import type { Coordinates, StrokeData, StrokeHistory } from "../../models";
-import { ToolTypes } from "../../enums";
+import { HomeStateActionTypes, ToolTypes } from "../../enums";
 
 import styles from "./styles.module.css";
 
@@ -11,43 +11,51 @@ import {
   setupCanvas,
 } from "../../utils/canvas";
 
-const MIN_ZOOM = 0.5;
-const MAX_ZOOM = 5;
-const ZOOM_STEP = 0.5;
-
-type CanvasBoardPropsType = HomeStateType;
+type CanvasBoardPropsType = {
+  isImporting: boolean;
+  color: string;
+  history: StrokeHistory[];
+  redoHistory: StrokeHistory[];
+  selectedTool: ToolTypes;
+  strokeSize: number;
+  zoom: { current: number; last: number };
+  setCanvasConfig: React.ActionDispatch<[action: HomeStateAction]>;
+  canvasRef: React.RefObject<HTMLCanvasElement | null>;
+  panCoords: React.RefObject<Coordinates>;
+};
 
 export const CanvasBoard = ({
+  isImporting,
   color,
-  strokeSize,
+  history,
+  redoHistory,
   selectedTool,
+  strokeSize,
+  zoom,
+  setCanvasConfig,
+  canvasRef,
+  panCoords,
 }: CanvasBoardPropsType) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const isDrawing = useRef(false);
   const isDragging = useRef(false);
 
-  const panCoords = useRef({ x: 0, y: 0 });
   const lastPanCoords = useRef<Coordinates>({ x: 0, y: 0 });
   const lastMouseCoords = useRef<Coordinates>({ x: 0, y: 0 });
 
   const strokesData = useRef<StrokeData[]>([]);
-  const history = useRef<StrokeHistory[]>([]);
-
-  const [zoom, setZoom] = useState({ current: MIN_ZOOM, last: MIN_ZOOM });
 
   useEffect(() => {
     const handleResize = () => {
-      setupCanvas(
-        canvasRef.current,
-        panCoords.current,
-        zoom.current,
-        history.current
-      );
+      setupCanvas(canvasRef.current, panCoords.current, zoom.current, history);
     };
     window.addEventListener("resize", handleResize);
 
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  useEffect(() => {
+    setupCanvas(canvasRef.current, panCoords.current, zoom.current, history);
+  }, [history, redoHistory]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -76,12 +84,7 @@ export const CanvasBoard = ({
     panCoords.current.x = Math.round(panCoords.current.x * 1000) / 1000;
     panCoords.current.y = Math.round(panCoords.current.y * 1000) / 1000;
 
-    setupCanvas(
-      canvasRef.current,
-      panCoords.current,
-      zoom.current,
-      history.current
-    );
+    setupCanvas(canvasRef.current, panCoords.current, zoom.current, history);
   }, [zoom.current]);
 
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -127,12 +130,7 @@ export const CanvasBoard = ({
         y: lastPanCoords.current.y + dy,
       };
 
-      setupCanvas(
-        canvasRef.current,
-        panCoords.current,
-        zoom.current,
-        history.current
-      );
+      setupCanvas(canvasRef.current, panCoords.current, zoom.current, history);
     } else {
       const currentMouseCoords = getCanvasMouseCoords(
         e,
@@ -166,7 +164,7 @@ export const CanvasBoard = ({
             canvasRef.current,
             panCoords.current,
             zoom.current,
-            history.current
+            history
           );
 
           drawOnCanvas(
@@ -206,30 +204,30 @@ export const CanvasBoard = ({
               },
             ];
 
-      history.current.push({
-        toolType: selectedTool,
-        data,
+      setCanvasConfig({
+        type: HomeStateActionTypes.ADD_HISTORY,
+        payload: {
+          toolType: selectedTool,
+          data,
+        },
       });
     }
 
     isDragging.current = false;
     isDrawing.current = false;
     lastMouseCoords.current = { x: 0, y: 0 };
+    lastPanCoords.current = { x: 0, y: 0 };
     strokesData.current = [];
   };
 
   const handleZoom = (e: React.WheelEvent<HTMLCanvasElement>) => {
     const direction = e.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP;
-    const newZoom = Math.min(
-      Math.max(zoom.current + direction, MIN_ZOOM),
-      MAX_ZOOM
-    );
-    if (newZoom !== zoom.current) {
-      setZoom((zoom) => ({ last: zoom.current, current: newZoom }));
-    }
-  };
 
-  console.log("rendering");
+    setCanvasConfig({
+      type: HomeStateActionTypes.SET_ZOOM,
+      payload: zoom.current + direction,
+    });
+  };
 
   return (
     <canvas

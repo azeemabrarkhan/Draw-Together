@@ -1,4 +1,4 @@
-import { ToolTypes } from "../enums/toolTypes";
+import { ToolTypes } from "../enums/tool-types";
 import type { Coordinates } from "../models/coordinates";
 import type { StrokeHistory } from "../models/strokes";
 
@@ -21,6 +21,8 @@ export const setupCanvas = (
 
   canvasContext.setTransform(1, 0, 0, 1, 0, 0);
   canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+  canvasContext.fillStyle = "#ffffff";
+  canvasContext.fillRect(0, 0, canvas.width, canvas.height);
 
   canvasContext.translate(panCoords.x, panCoords.y);
   canvasContext.scale(zoom, zoom);
