@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "../";
-import type { HomeStateAction } from "../../pages";
+import { ZOOM_STEP, type HomeStateAction } from "../../pages";
 import type { Coordinates, StrokeHistory } from "../../models";
 import { downloadFile } from "../../utils";
 import {
@@ -49,6 +49,10 @@ export const ToolBar = ({
 }: ToolBarPropsType) => {
   const [isSizeToolTipOpen, setIsSizeToolTipOpen] = useState(false);
 
+  const toggleSizeToolTip = () => {
+    setIsSizeToolTipOpen((prev) => !prev);
+  };
+
   const handleToolSelect = (toolType: ToolTypes) => {
     setCanvasConfig({
       type: HomeStateActionTypes.SET_TOOL,
@@ -70,10 +74,6 @@ export const ToolBar = ({
     });
 
     toggleSizeToolTip();
-  };
-
-  const toggleSizeToolTip = () => {
-    setIsSizeToolTipOpen((prev) => !prev);
   };
 
   const handleCanvasAction = (actionName: CanvasActions) => {
@@ -108,6 +108,20 @@ export const ToolBar = ({
         break;
 
       case CanvasActions.IMPORT:
+        break;
+
+      case CanvasActions.ZOOM_IN:
+        setCanvasConfig({
+          type: HomeStateActionTypes.SET_ZOOM,
+          payload: zoom.current + ZOOM_STEP,
+        });
+        break;
+
+      case CanvasActions.ZOOM_OUT:
+        setCanvasConfig({
+          type: HomeStateActionTypes.SET_ZOOM,
+          payload: zoom.current - ZOOM_STEP,
+        });
         break;
 
       default:

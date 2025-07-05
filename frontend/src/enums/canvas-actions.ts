@@ -5,4 +5,6 @@ export enum CanvasActions {
   SAVE = "Save",
   EXPORT = "Export",
   IMPORT = "Import",
+  ZOOM_IN = "Zoom In",
+  ZOOM_OUT = "Zoom Out",
 }
