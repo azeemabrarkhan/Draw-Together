@@ -140,6 +140,7 @@ export const ToolBar = ({
           onClick={() => handleCanvasAction(action.name)}
           url={action.icon}
           isDisabled={getButtonState(action.name)}
+          tooltipText={action.name}
         />
       ))}
       {TOOLS.map((tool) => (
@@ -148,6 +149,7 @@ export const ToolBar = ({
           isSelected={tool.name === selectedTool}
           onClick={() => handleToolSelect(tool.name)}
           url={tool.icon}
+          tooltipText={tool.name}
         />
       ))}
       <input
@@ -161,6 +163,7 @@ export const ToolBar = ({
           isSelected={isSizeToolTipOpen}
           onClick={toggleSizeToolTip}
           text="Size"
+          tooltipText={isSizeToolTipOpen ? "" : "Stroke Size"}
         />
         {isSizeToolTipOpen && (
           <div className={styles.sizes}>
