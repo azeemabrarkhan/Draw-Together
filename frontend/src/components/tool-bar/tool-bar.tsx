@@ -26,6 +26,7 @@ const CANVAS_ACTIONS = Object.values(CanvasActions).map((action) => ({
 }));
 
 type ToolBarPropsType = {
+  isImporting: boolean;
   color: string;
   history: StrokeHistory[];
   redoHistory: StrokeHistory[];
@@ -38,6 +39,7 @@ type ToolBarPropsType = {
 };
 
 export const ToolBar = ({
+  isImporting,
   color,
   history,
   redoHistory,
@@ -115,6 +117,10 @@ export const ToolBar = ({
         break;
 
       case CanvasActions.IMPORT:
+        setCanvasConfig({
+          type: HomeStateActionTypes.SET_IS_IMPORTING,
+          payload: true,
+        });
         break;
 
       case CanvasActions.ZOOM_IN:

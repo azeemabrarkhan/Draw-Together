@@ -1,15 +1,17 @@
-import { useReducer, useRef } from "react";
+import { useEffect, useReducer, useRef } from "react";
 import { CanvasBoard, ToolBar } from "../../components";
 import type { Coordinates, StrokeHistory } from "../../models";
 import { ToolTypes, HomeStateActionTypes } from "../../enums";
 
 import styles from "./styles.module.css";
+import { uploadFile, isStrokeHistoryArray } from "../../utils";
 
 const MIN_ZOOM = 0.5;
 const MAX_ZOOM = 5;
 export const ZOOM_STEP = 0.5;
 
 type HomeStateType = {
+  isImporting: boolean;
   color: string;
   history: StrokeHistory[];
   redoHistory: StrokeHistory[];
@@ -20,13 +22,27 @@ type HomeStateType = {
 
 export type HomeStateAction = {
   type: HomeStateActionTypes;
-  payload?: string | StrokeHistory | ToolTypes | number;
+  payload?:
+    | number
+    | boolean
+    | string
+    | ToolTypes
+    | StrokeHistory
+    | StrokeHistory[];
 };
 
 const homeStateReducer = (state: HomeStateType, action: HomeStateAction) => {
   switch (action.type) {
+    case HomeStateActionTypes.SET_IS_IMPORTING:
+      return { ...state, isImporting: action.payload as boolean };
     case HomeStateActionTypes.SET_COLOR:
       return { ...state, color: action.payload as string };
+    case HomeStateActionTypes.SET_HISTORY:
+      return {
+        ...state,
+        redoHistory: [],
+        history: action.payload as StrokeHistory[],
+      };
     case HomeStateActionTypes.ADD_HISTORY:
       return {
         ...state,
@@ -83,6 +99,7 @@ const homeStateReducer = (state: HomeStateType, action: HomeStateAction) => {
 
 export const Home = () => {
   const [canvasConfig, setCanvasConfig] = useReducer(homeStateReducer, {
+    isImporting: false,
     color: "#000000",
     history: [],
     redoHistory: [],
@@ -93,6 +110,29 @@ export const Home = () => {
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const panCoords = useRef<Coordinates>({ x: 0, y: 0 });
+
+  useEffect(() => {
+    if (!canvasConfig.isImporting) return;
+
+    uploadFile("application/json")
+      .then((data) => {
+        if (isStrokeHistoryArray(data)) {
+          setCanvasConfig({
+            type: HomeStateActionTypes.SET_HISTORY,
+            payload: data,
+          });
+        } else {
+          console.log("Unsupported json file");
+        }
+      })
+      .catch((e) => console.log(e))
+      .finally(() =>
+        setCanvasConfig({
+          type: HomeStateActionTypes.SET_IS_IMPORTING,
+          payload: false,
+        })
+      );
+  }, [canvasConfig.isImporting]);
 
   const props = { ...canvasConfig, setCanvasConfig, canvasRef, panCoords };
 

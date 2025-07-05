@@ -12,6 +12,7 @@ import {
 } from "../../utils/canvas";
 
 type CanvasBoardPropsType = {
+  isImporting: boolean;
   color: string;
   history: StrokeHistory[];
   redoHistory: StrokeHistory[];
@@ -24,6 +25,7 @@ type CanvasBoardPropsType = {
 };
 
 export const CanvasBoard = ({
+  isImporting,
   color,
   history,
   redoHistory,

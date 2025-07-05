@@ -3,11 +3,11 @@ import type { Coordinates, StrokeData, StrokeHistory } from "../models";
 
 const validToolTypes = Object.values(ToolTypes);
 
-function isCoordinates(obj: any): obj is Coordinates {
+export function isCoordinates(obj: any): obj is Coordinates {
   return obj && typeof obj.x === "number" && typeof obj.y === "number";
 }
 
-function isStrokeData(obj: any): obj is StrokeData {
+export function isStrokeData(obj: any): obj is StrokeData {
   return (
     obj &&
     isCoordinates(obj.from) &&
@@ -17,7 +17,7 @@ function isStrokeData(obj: any): obj is StrokeData {
   );
 }
 
-function isStrokeHistory(obj: any): obj is StrokeHistory {
+export function isStrokeHistory(obj: any): obj is StrokeHistory {
   return (
     obj &&
     validToolTypes.includes(obj.toolType as ToolTypes) &&
@@ -26,6 +26,6 @@ function isStrokeHistory(obj: any): obj is StrokeHistory {
   );
 }
 
-function isStrokeHistoryArray(arr: any[]): arr is StrokeHistory[] {
+export function isStrokeHistoryArray(arr: any[]): arr is StrokeHistory[] {
   return Array.isArray(arr) && arr.every(isStrokeHistory);
 }
