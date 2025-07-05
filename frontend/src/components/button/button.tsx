@@ -8,6 +8,7 @@ type ButtonPropsType = {
   size?: ButtonSizes;
   url?: string;
   text?: string;
+  tooltipText?: string;
 };
 
 export const Button = ({
@@ -17,19 +18,26 @@ export const Button = ({
   size,
   url,
   text,
+  tooltipText,
 }: ButtonPropsType) => {
   return (
-    <button
-      className={`${styles.button} ${
-        size === ButtonSizes.SMALL ? styles.small : ""
-      } ${isSelected ? styles.selected : ""}`}
-      onClick={onClick}
-      disabled={isDisabled}
-    >
-      {url && (
-        <div className={styles.content} style={{ backgroundImage: url }}></div>
-      )}
-      {text && <div className={styles.content}>{text}</div>}
-    </button>
+    <div className={styles["button_container"]}>
+      <button
+        className={`${styles.button} ${
+          size === ButtonSizes.SMALL ? styles.small : ""
+        } ${isSelected ? styles.selected : ""}`}
+        onClick={onClick}
+        disabled={isDisabled}
+      >
+        {url && (
+          <div
+            className={styles.content}
+            style={{ backgroundImage: url }}
+          ></div>
+        )}
+        {text && <div className={styles.content}>{text}</div>}
+      </button>
+      {tooltipText && <span className={styles["tool_tip"]}>{tooltipText}</span>}
+    </div>
   );
 };

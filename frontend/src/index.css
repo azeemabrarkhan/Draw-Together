@@ -27,7 +27,7 @@ body {
 
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
-  font-weight: 400;
+  font-weight: var(--font-weight-normal);
   color: #000000;
 
   font-synthesis: none;
@@ -60,7 +60,7 @@ a:hover {
 }
 
 button {
-  color: var(--color-teal);
+  color: var(--color-black);
   background-color: var(--color-sky);
   outline: 2px solid var(--color-black);
   border-radius: 12%;

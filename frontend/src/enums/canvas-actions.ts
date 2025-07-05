@@ -1,8 +1,8 @@
 export enum CanvasActions {
-  NEW = "NEW",
-  UNDO = "UNDO",
-  REDO = "REDO",
-  SAVE = "SAVE",
-  EXPORT = "EXPORT",
-  IMPORT = "IMPORT",
+  NEW = "New",
+  UNDO = "Undo",
+  REDO = "Redo",
+  SAVE = "Save",
+  EXPORT = "Export",
+  IMPORT = "Import",
 }
