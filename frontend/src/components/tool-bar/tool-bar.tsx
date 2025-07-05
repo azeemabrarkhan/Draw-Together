@@ -2,7 +2,11 @@ import { useState } from "react";
 import { Button } from "../";
 import { ZOOM_STEP, type HomeStateAction } from "../../pages";
 import type { Coordinates, StrokeHistory } from "../../models";
-import { downloadFile, getCurrentTimeStamp } from "../../utils";
+import {
+  downloadFile,
+  downloadObjAsEncodedFile,
+  getCurrentTimeStamp,
+} from "../../utils";
 import {
   ToolTypes,
   ButtonSizes,
@@ -108,12 +112,7 @@ export const ToolBar = ({
         break;
 
       case CanvasActions.EXPORT:
-        const jsonString = JSON.stringify(history, null, 2);
-        const blob = new Blob([jsonString], { type: "application/json" });
-        downloadFile(
-          URL.createObjectURL(blob),
-          `${getCurrentTimeStamp()}-canvas.json`
-        );
+        downloadObjAsEncodedFile(history, `${getCurrentTimeStamp()}-canvas`);
         break;
 
       case CanvasActions.IMPORT:

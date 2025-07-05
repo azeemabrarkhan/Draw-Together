@@ -114,7 +114,7 @@ export const Home = () => {
   useEffect(() => {
     if (!canvasConfig.isImporting) return;
 
-    uploadFile("application/json")
+    uploadFile()
       .then((data) => {
         if (isStrokeHistoryArray(data)) {
           setCanvasConfig({
