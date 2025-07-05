@@ -43,7 +43,6 @@ type ToolBarPropsType = {
 };
 
 export const ToolBar = ({
-  isImporting,
   color,
   history,
   redoHistory,
@@ -52,7 +51,6 @@ export const ToolBar = ({
   zoom,
   setCanvasConfig,
   canvasRef,
-  panCoords,
 }: ToolBarPropsType) => {
   const [isSizeToolTipOpen, setIsSizeToolTipOpen] = useState(false);
 

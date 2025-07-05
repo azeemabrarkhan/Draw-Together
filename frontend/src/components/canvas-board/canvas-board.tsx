@@ -25,7 +25,6 @@ type CanvasBoardPropsType = {
 };
 
 export const CanvasBoard = ({
-  isImporting,
   color,
   history,
   redoHistory,
