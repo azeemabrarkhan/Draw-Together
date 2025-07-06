@@ -1,5 +1,5 @@
 .tool_bar {
-  max-height: 50px;
+  /* max-height: 50px; */
   background-color: var(--color-teal);
   padding: 5px 10px;
   display: flex;
@@ -19,12 +19,14 @@
     align-items: flex-start;
     z-index: 1;
     order: 100;
+    position: relative;
 
     .sizes {
       display: flex;
       gap: 5px;
-      position: relative;
-      left: -32%;
+      position: absolute;
+      left: -98%;
+      margin-top: 50px;
     }
   }
 }
