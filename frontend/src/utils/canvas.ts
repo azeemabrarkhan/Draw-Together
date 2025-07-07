@@ -12,17 +12,15 @@ export const setupCanvas = (
   const canvasContext = canvas.getContext("2d");
   if (!canvasContext) return;
 
-  const rect = canvas.getBoundingClientRect();
+  const { width, height } = canvas.getBoundingClientRect();
 
-  canvas.width = rect.width;
-  canvas.height = rect.height;
-  canvas.style.width = `${rect.width}px`;
-  canvas.style.height = `${rect.height}px`;
+  canvas.width = width;
+  canvas.height = height;
 
   canvasContext.setTransform(1, 0, 0, 1, 0, 0);
-  canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+  canvasContext.clearRect(0, 0, width, height);
   canvasContext.fillStyle = "#ffffff";
-  canvasContext.fillRect(0, 0, canvas.width, canvas.height);
+  canvasContext.fillRect(0, 0, width, height);
 
   canvasContext.translate(panCoords.x, panCoords.y);
   canvasContext.scale(zoom, zoom);

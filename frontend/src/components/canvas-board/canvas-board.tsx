@@ -68,20 +68,20 @@ export const CanvasBoard = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const rect = canvas.getBoundingClientRect();
-    const center = {
-      x: rect.width / 2,
-      y: rect.height / 2,
-    };
+    const { width, height } = canvas.getBoundingClientRect();
+    const centerX = width / 2;
+    const centerY = height / 2;
 
-    const preZoomX = (center.x - panCoords.current.x) / zoom.last;
-    const preZoomY = (center.y - panCoords.current.y) / zoom.last;
+    const scaleRatio = zoom.current / zoom.last;
 
-    panCoords.current.x = center.x - preZoomX * zoom.current;
-    panCoords.current.y = center.y - preZoomY * zoom.current;
-
-    panCoords.current.x = Math.round(panCoords.current.x * 1000) / 1000;
-    panCoords.current.y = Math.round(panCoords.current.y * 1000) / 1000;
+    panCoords.current.x =
+      Math.round(
+        (centerX - (centerX - panCoords.current.x) * scaleRatio) * 1000
+      ) / 1000;
+    panCoords.current.y =
+      Math.round(
+        (centerY - (centerY - panCoords.current.y) * scaleRatio) * 1000
+      ) / 1000;
 
     setupCanvas(canvasRef.current, panCoords.current, zoom.current, history);
   }, [zoom.current]);
