@@ -1,3 +1,4 @@
+import { Colors } from "../enums";
 import { ToolTypes } from "../enums/tool-types";
 import type { Coordinates } from "../models/coordinates";
 import type { StrokeHistory } from "../models/strokes";
@@ -19,7 +20,7 @@ export const setupCanvas = (
 
   canvasContext.setTransform(1, 0, 0, 1, 0, 0);
   canvasContext.clearRect(0, 0, width, height);
-  canvasContext.fillStyle = "#ffffff";
+  canvasContext.fillStyle = Colors.WHITE;
   canvasContext.fillRect(0, 0, width, height);
 
   canvasContext.translate(panCoords.x, panCoords.y);
@@ -81,6 +82,7 @@ export const drawOnCanvas = (
   const height = to.y - from.y;
 
   canvasContext.strokeStyle = color;
+  canvasContext.fillStyle = color;
   canvasContext.lineWidth = strokeWidth;
   canvasContext.beginPath();
 
@@ -88,6 +90,17 @@ export const drawOnCanvas = (
     case ToolTypes.DRAW:
       canvasContext.moveTo(from.x, from.y);
       canvasContext.lineTo(to.x, to.y);
+      break;
+
+    case ToolTypes.ERASER:
+      const eraserSize = strokeWidth * 10;
+      canvasContext.fillRect(
+        from.x - eraserSize / 2,
+        to.y - eraserSize / 2,
+        eraserSize,
+        eraserSize
+      );
+
       break;
 
     case ToolTypes.LINE:

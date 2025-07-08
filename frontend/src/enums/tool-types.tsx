@@ -1,5 +1,6 @@
 export enum ToolTypes {
   DRAW = "Draw",
+  ERASER = "Eraser",
   LINE = "Line",
   CIRCLE = "Circle",
   SQUARE = "Square",

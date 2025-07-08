@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { ZOOM_STEP, type HomeStateAction } from "../../pages";
 import type { Coordinates, StrokeData, StrokeHistory } from "../../models";
-import { HomeStateActionTypes, ToolTypes } from "../../enums";
+import { Colors, HomeStateActionTypes, ToolTypes } from "../../enums";
 
 import styles from "./styles.module.css";
 
@@ -140,19 +140,23 @@ export const CanvasBoard = ({
 
       switch (selectedTool) {
         case ToolTypes.DRAW:
+        case ToolTypes.ERASER:
+          const strokeColor =
+            selectedTool === ToolTypes.ERASER ? Colors.WHITE : color;
+
           drawOnCanvas(
             lastMouseCoords.current,
             currentMouseCoords,
             canvas,
             selectedTool,
-            color,
+            strokeColor,
             strokeSize
           );
 
           strokesData.current.push({
             from: { ...lastMouseCoords.current },
             to: { ...currentMouseCoords },
-            color: color,
+            color: strokeColor,
             strokeSize: strokeSize,
           });
 
@@ -192,7 +196,7 @@ export const CanvasBoard = ({
       );
 
       const data =
-        selectedTool === ToolTypes.DRAW
+        selectedTool === ToolTypes.DRAW || selectedTool === ToolTypes.ERASER
           ? [...strokesData.current]
           : [
               {
