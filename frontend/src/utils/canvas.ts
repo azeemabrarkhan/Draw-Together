@@ -3,6 +3,8 @@ import { ToolTypes } from "../enums/tool-types";
 import type { Coordinates } from "../models/coordinates";
 import type { StrokeHistory } from "../models/strokes";
 
+const ERASER_SCALE = 20;
+
 export const setupCanvas = (
   canvas: HTMLCanvasElement | null,
   panCoords: Coordinates,
@@ -93,7 +95,7 @@ export const drawOnCanvas = (
       break;
 
     case ToolTypes.ERASER:
-      const eraserSize = strokeWidth * 10;
+      const eraserSize = strokeWidth * ERASER_SCALE;
       canvasContext.fillRect(
         from.x - eraserSize / 2,
         to.y - eraserSize / 2,
