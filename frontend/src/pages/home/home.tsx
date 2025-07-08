@@ -6,7 +6,7 @@ import { ToolTypes, HomeStateActionTypes } from "../../enums";
 import styles from "./styles.module.css";
 import { uploadFile, isStrokeHistoryArray } from "../../utils";
 
-const MIN_ZOOM = 0.5;
+const MIN_ZOOM = 1;
 const MAX_ZOOM = 5;
 export const ZOOM_STEP = 0.5;
 
@@ -135,14 +135,15 @@ export const Home = () => {
   }, [canvasConfig.isImporting]);
 
   const props = { ...canvasConfig, setCanvasConfig, canvasRef, panCoords };
+  const percentageZoom = new Intl.NumberFormat("en-GB", {
+    style: "percent",
+  }).format(canvasConfig.zoom.current);
 
   return (
     <div className={styles.home}>
       <ToolBar {...props} />
       <CanvasBoard {...props} />
-      <span
-        className={styles.zoom_indicator}
-      >{`Zoom: ${canvasConfig.zoom.current}`}</span>
+      <span className={styles.zoom_indicator}>{`Zoom: ${percentageZoom}`}</span>
     </div>
   );
 };
