@@ -43,6 +43,7 @@ type ToolBarPropsType = {
 };
 
 export const ToolBar = ({
+  isImporting,
   color,
   history,
   redoHistory,
@@ -150,8 +151,10 @@ export const ToolBar = ({
         return redoHistory.length === 0;
 
       case CanvasActions.NEW:
-      case CanvasActions.IMPORT:
         return false;
+
+      case CanvasActions.IMPORT:
+        return isImporting;
     }
   };
 
