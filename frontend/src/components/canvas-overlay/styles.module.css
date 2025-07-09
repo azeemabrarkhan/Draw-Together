@@ -14,3 +14,11 @@
   background-repeat: no-repeat;
   background-size: contain;
 }
+
+.zoom_indicator {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  opacity: 0.6;
+  padding: 2px;
+}

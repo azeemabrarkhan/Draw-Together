@@ -135,9 +135,6 @@ export const Home = () => {
   }, [canvasConfig.isImporting]);
 
   const props = { ...canvasConfig, setCanvasConfig, canvasRef, panCoords };
-  const percentageZoom = new Intl.NumberFormat("en-GB", {
-    style: "percent",
-  }).format(canvasConfig.zoom.current);
 
   return (
     <div className={styles.home}>
@@ -149,7 +146,6 @@ export const Home = () => {
         zoom={canvasConfig.zoom.current}
         selectedTool={canvasConfig.selectedTool}
       />
-      <span className={styles.zoom_indicator}>{`Zoom: ${percentageZoom}`}</span>
     </div>
   );
 };

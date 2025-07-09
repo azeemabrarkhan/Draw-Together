@@ -63,19 +63,26 @@ export const CanvasOverlay = ({
     };
   }, [canvasRef.current, strokeSize, zoom, selectedTool]);
 
+  const percentageZoom = new Intl.NumberFormat("en-GB", {
+    style: "percent",
+  }).format(zoom);
+
   return (
-    <div
-      className={
-        selectedTool === ToolTypes.ERASER
-          ? styles.eraser_cursor
-          : styles.fill_color_cursor
-      }
-      style={{
-        top: cursorConfig.coordinates.y,
-        left: cursorConfig.coordinates.x,
-        width: cursorConfig.cursorSize,
-        height: cursorConfig.cursorSize,
-      }}
-    ></div>
+    <>
+      <div
+        className={
+          selectedTool === ToolTypes.ERASER
+            ? styles.eraser_cursor
+            : styles.fill_color_cursor
+        }
+        style={{
+          top: cursorConfig.coordinates.y,
+          left: cursorConfig.coordinates.x,
+          width: cursorConfig.cursorSize,
+          height: cursorConfig.cursorSize,
+        }}
+      ></div>
+      <span className={styles.zoom_indicator}>{`Zoom: ${percentageZoom}`}</span>
+    </>
   );
 };
