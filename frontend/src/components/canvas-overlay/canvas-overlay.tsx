@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import styles from "./styles.module.css";
 import { ERASER_SCALE } from "../../utils";
 import { ToolTypes } from "../../enums";
+
+import styles from "./styles.module.css";
 
 const CURSOR_OR_ICON_SIZE = 24;
 
