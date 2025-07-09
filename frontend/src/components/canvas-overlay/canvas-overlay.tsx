@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./styles.module.css";
-import type { Coordinates } from "../../models";
 import { ERASER_SCALE } from "../../utils";
 
 type CanvasOverlayProps = {
