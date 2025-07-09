@@ -143,13 +143,12 @@ export const Home = () => {
     <div className={styles.home}>
       <ToolBar {...props} />
       <CanvasBoard {...props} />
-      {canvasConfig.selectedTool === ToolTypes.ERASER && (
-        <CanvasOverlay
-          canvasRef={canvasRef}
-          strokeSize={canvasConfig.strokeSize}
-          zoom={canvasConfig.zoom.current}
-        ></CanvasOverlay>
-      )}
+      <CanvasOverlay
+        canvasRef={canvasRef}
+        strokeSize={canvasConfig.strokeSize}
+        zoom={canvasConfig.zoom.current}
+        selectedTool={canvasConfig.selectedTool}
+      />
       <span className={styles.zoom_indicator}>{`Zoom: ${percentageZoom}`}</span>
     </div>
   );

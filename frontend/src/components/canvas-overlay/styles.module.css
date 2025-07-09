@@ -1,6 +1,16 @@
-.custom_cursor {
+.eraser_cursor {
   position: absolute;
   pointer-events: none;
+
   border: 2px dotted var(--color-black);
   background-color: var(--color-white);
+}
+
+.fill_color_cursor {
+  position: absolute;
+  pointer-events: none;
+
+  background-image: url("/icons/Fill Color.png");
+  background-repeat: no-repeat;
+  background-size: contain;
 }

@@ -1,38 +1,51 @@
 import { useEffect, useState } from "react";
 import styles from "./styles.module.css";
 import { ERASER_SCALE } from "../../utils";
+import { ToolTypes } from "../../enums";
+
+const CURSOR_OR_ICON_SIZE = 24;
 
 type CanvasOverlayProps = {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
   strokeSize: number;
   zoom: number;
+  selectedTool: ToolTypes;
 };
 
 const defaultState = {
-  customCursorCoords: { x: 0, y: 0 },
-  eraserSize: 0,
+  coordinates: { x: 0, y: 0 },
+  cursorSize: 0,
 };
 
 export const CanvasOverlay = ({
   canvasRef,
   strokeSize,
   zoom,
+  selectedTool,
 }: CanvasOverlayProps) => {
-  const [customCursorCoords, setCustomCursorCoords] = useState(defaultState);
+  const [cursorConfig, setCustomCursorCoords] = useState(defaultState);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    if (
+      selectedTool !== ToolTypes.ERASER &&
+      selectedTool !== ToolTypes.FILL_COLOR
+    )
+      return;
 
-    const eraserSize = strokeSize * ERASER_SCALE * zoom;
+    const cursorSize =
+      selectedTool === ToolTypes.ERASER
+        ? strokeSize * ERASER_SCALE * zoom
+        : CURSOR_OR_ICON_SIZE;
 
     const handleMouseMove = (e: MouseEvent) => {
-      const x = e.clientX - eraserSize / 2;
-      const y = e.clientY - eraserSize / 2;
+      const x = e.clientX - cursorSize / 2;
+      const y = e.clientY - cursorSize / 2;
 
       setCustomCursorCoords(() => ({
-        customCursorCoords: { x, y },
-        eraserSize,
+        coordinates: { x, y },
+        cursorSize,
       }));
     };
 
@@ -47,16 +60,20 @@ export const CanvasOverlay = ({
       canvas.removeEventListener("mousemove", handleMouseMove);
       canvas.removeEventListener("mouseleave", handleMouseLeave);
     };
-  }, [canvasRef.current, strokeSize, zoom]);
+  }, [canvasRef.current, strokeSize, zoom, selectedTool]);
 
   return (
     <div
-      className={styles.custom_cursor}
+      className={
+        selectedTool === ToolTypes.ERASER
+          ? styles.eraser_cursor
+          : styles.fill_color_cursor
+      }
       style={{
-        top: customCursorCoords.customCursorCoords.y,
-        left: customCursorCoords.customCursorCoords.x,
-        width: customCursorCoords.eraserSize,
-        height: customCursorCoords.eraserSize,
+        top: cursorConfig.coordinates.y,
+        left: cursorConfig.coordinates.x,
+        width: cursorConfig.cursorSize,
+        height: cursorConfig.cursorSize,
       }}
     ></div>
   );

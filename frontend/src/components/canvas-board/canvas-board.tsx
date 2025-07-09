@@ -61,8 +61,9 @@ export const CanvasBoard = ({
     if (canvas) {
       canvas.style.cursor =
         selectedTool === ToolTypes.PAN
-          ? "grab"
-          : selectedTool === ToolTypes.ERASER
+          ? "move"
+          : selectedTool === ToolTypes.ERASER ||
+            selectedTool === ToolTypes.FILL_COLOR
           ? "none"
           : "crosshair";
     }
