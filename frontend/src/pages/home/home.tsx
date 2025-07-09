@@ -140,12 +140,6 @@ export const Home = () => {
     <div className={styles.home}>
       <ToolBar {...props} />
       <CanvasBoard {...props} />
-      <CanvasOverlay
-        canvasRef={canvasRef}
-        strokeSize={canvasConfig.strokeSize}
-        zoom={canvasConfig.zoom.current}
-        selectedTool={canvasConfig.selectedTool}
-      />
     </div>
   );
 };

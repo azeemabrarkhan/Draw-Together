@@ -10,6 +10,7 @@ import {
   getCanvasMouseCoords,
   setupCanvas,
 } from "../../utils/canvas";
+import { CanvasOverlay } from "..";
 
 type CanvasBoardPropsType = {
   isImporting: boolean;
@@ -238,13 +239,21 @@ export const CanvasBoard = ({
   };
 
   return (
-    <canvas
-      className={styles.canvas}
-      ref={canvasRef}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onWheel={handleZoom}
-    />
+    <>
+      <canvas
+        className={styles.canvas}
+        ref={canvasRef}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onWheel={handleZoom}
+      />
+      <CanvasOverlay
+        canvasRef={canvasRef}
+        strokeSize={strokeSize}
+        zoom={zoom.current}
+        selectedTool={selectedTool}
+      />
+    </>
   );
 };
