@@ -1,0 +1,6 @@
+.custom_cursor {
+  position: absolute;
+  pointer-events: none;
+  border: 2px dotted var(--color-black);
+  background-color: var(--color-white);
+}

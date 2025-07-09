@@ -1,5 +1,5 @@
 import { useEffect, useReducer, useRef } from "react";
-import { CanvasBoard, ToolBar } from "../../components";
+import { CanvasBoard, CanvasOverlay, ToolBar } from "../../components";
 import type { Coordinates, StrokeHistory } from "../../models";
 import { ToolTypes, HomeStateActionTypes } from "../../enums";
 
@@ -143,6 +143,13 @@ export const Home = () => {
     <div className={styles.home}>
       <ToolBar {...props} />
       <CanvasBoard {...props} />
+      {canvasConfig.selectedTool === ToolTypes.ERASER && (
+        <CanvasOverlay
+          canvasRef={canvasRef}
+          strokeSize={canvasConfig.strokeSize}
+          zoom={canvasConfig.zoom.current}
+        ></CanvasOverlay>
+      )}
       <span className={styles.zoom_indicator}>{`Zoom: ${percentageZoom}`}</span>
     </div>
   );

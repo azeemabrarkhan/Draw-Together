@@ -60,7 +60,11 @@ export const CanvasBoard = ({
     const canvas = canvasRef.current;
     if (canvas) {
       canvas.style.cursor =
-        selectedTool === ToolTypes.PAN ? "grab" : "crosshair";
+        selectedTool === ToolTypes.PAN
+          ? "grab"
+          : selectedTool === ToolTypes.ERASER
+          ? "none"
+          : "crosshair";
     }
   }, [selectedTool]);
 

@@ -3,6 +3,7 @@
   background-color: var(--color-sky);
   padding: 5px;
   border-bottom: 2px solid var(--color-light-cyan);
+  z-index: 1;
 
   .logo {
     height: 100%;

@@ -3,7 +3,7 @@ import { ToolTypes } from "../enums/tool-types";
 import type { Coordinates } from "../models/coordinates";
 import type { StrokeHistory } from "../models/strokes";
 
-const ERASER_SCALE = 20;
+export const ERASER_SCALE = 20;
 
 export const setupCanvas = (
   canvas: HTMLCanvasElement | null,
