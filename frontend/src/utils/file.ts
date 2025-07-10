@@ -21,10 +21,10 @@ export const uploadFile = (type?: string): Promise<any> => {
     input.type = "file";
     input.accept = type ?? "";
 
-    const timeout = setTimeout(() => {
-      console.log("timeout");
-      reject(new Error("A timeout occurred. Please try again."));
-    }, 10_000);
+    const timeout = setTimeout(
+      () => reject(new Error("A timeout occurred. Please try again.")),
+      2000
+    );
 
     input.onchange = () => {
       const file = input.files?.[0];

@@ -1,5 +1,6 @@
 import { useEffect, useReducer, useRef } from "react";
-import { CanvasBoard, CanvasOverlay, ToolBar } from "../../components";
+import { toast } from "react-toastify";
+import { CanvasBoard, ToolBar } from "../../components";
 import type { Coordinates, StrokeHistory } from "../../models";
 import { ToolTypes, HomeStateActionTypes } from "../../enums";
 
@@ -122,10 +123,10 @@ export const Home = () => {
             payload: data,
           });
         } else {
-          console.log("Unsupported json file");
+          toast.error("Unsupported JSON file format.");
         }
       })
-      .catch((e) => console.log(e))
+      .catch((e) => toast.error(e.message))
       .finally(() =>
         setCanvasConfig({
           type: HomeStateActionTypes.SET_IS_IMPORTING,
