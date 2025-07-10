@@ -21,10 +21,15 @@ export const uploadFile = (type?: string): Promise<any> => {
     input.type = "file";
     input.accept = type ?? "";
 
+    const timeout = setTimeout(() => {
+      console.log("timeout");
+      reject(new Error("A timeout occurred. Please try again."));
+    }, 10_000);
+
     input.onchange = () => {
       const file = input.files?.[0];
       if (!file) {
-        reject(new Error("No file selected"));
+        reject(new Error("No file selected."));
         return;
       }
 
@@ -33,13 +38,14 @@ export const uploadFile = (type?: string): Promise<any> => {
         try {
           const decodedString = atob(e.target?.result as string);
           const json = JSON.parse(decodedString);
+          clearTimeout(timeout);
           resolve(json);
         } catch (err) {
-          reject(new Error("Failed to parse JSON"));
+          reject(new Error("Unable to parse JSON data."));
         }
       };
 
-      reader.onerror = () => reject(new Error("File reading error"));
+      reader.onerror = () => reject(new Error("Error reading the file."));
 
       reader.readAsText(file);
     };
