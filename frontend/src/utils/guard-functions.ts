@@ -12,7 +12,8 @@ export function isStrokeData(obj: any): obj is StrokeData {
     obj &&
     isCoordinates(obj.from) &&
     isCoordinates(obj.to) &&
-    typeof obj.color === "string" &&
+    typeof obj.strokeColor === "string" &&
+    typeof obj.fillColor === "string" &&
     typeof obj.strokeSize === "number"
   );
 }
