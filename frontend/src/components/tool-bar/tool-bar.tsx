@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button } from "../";
+import { Button, ColorInput } from "../";
 import { ZOOM_STEP, type HomeStateAction } from "../../pages";
 import type { Coordinates, StrokeHistory } from "../../models";
 import {
@@ -179,12 +179,11 @@ export const ToolBar = ({
           tooltipText={tool.name}
         />
       ))}
-      <input
-        type="color"
-        className={styles["color_selector"]}
-        value={color}
-        onChange={(e) => handleColorSelect(e)}
-      ></input>
+      <ColorInput
+        color={color}
+        onChange={handleColorSelect}
+        tooltipText="Stroke Color"
+      />
       <div className={styles["size_button_container"]}>
         <Button
           isSelected={isSizeToolTipOpen}

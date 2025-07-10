@@ -3,3 +3,4 @@ export * from "./nav-bar/nav-bar";
 export * from "./tool-bar/tool-bar";
 export * from "./button/button";
 export * from "./canvas-overlay/canvas-overlay";
+export * from "./color-input/color-input";

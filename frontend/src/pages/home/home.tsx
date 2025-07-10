@@ -2,7 +2,7 @@ import { useEffect, useReducer, useRef } from "react";
 import { toast } from "react-toastify";
 import { CanvasBoard, ToolBar } from "../../components";
 import type { Coordinates, StrokeHistory } from "../../models";
-import { ToolTypes, HomeStateActionTypes } from "../../enums";
+import { ToolTypes, HomeStateActionTypes, Colors } from "../../enums";
 
 import styles from "./styles.module.css";
 import { uploadFile, isStrokeHistoryArray } from "../../utils";
@@ -101,7 +101,7 @@ const homeStateReducer = (state: HomeStateType, action: HomeStateAction) => {
 export const Home = () => {
   const [canvasConfig, setCanvasConfig] = useReducer(homeStateReducer, {
     isImporting: false,
-    color: "#000000",
+    color: Colors.BLACK,
     history: [],
     redoHistory: [],
     selectedTool: ToolTypes.DRAW,
