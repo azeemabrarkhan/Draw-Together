@@ -214,24 +214,18 @@ export const CanvasBoard = ({
 
       switch (selectedTool) {
         case ToolTypes.FILL:
-          if (fillColor === Colors.WHITE) {
-            toast.warn("Please select a fill color other than white.");
-            break;
-          }
-
           const clickedElement = getClickedShape(currentMouseCoords, history);
-
-          if (clickedElement) {
+          if (!clickedElement) {
+            toast.warn(
+              "Please click on a drawn shape to apply the fill color."
+            );
+          } else if (clickedElement.data[0].fillColor !== fillColor) {
             const clickedElementCopy: StrokeHistory = JSON.parse(
               JSON.stringify(clickedElement)
             );
             toolType = clickedElementCopy.toolType;
             data = clickedElementCopy.data;
             data[0].fillColor = fillColor;
-          } else {
-            toast.warn(
-              "Please click on a drawn shape to apply the fill color."
-            );
           }
           break;
 
