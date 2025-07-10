@@ -10,5 +10,5 @@ export enum ToolTypes {
   DOWN_TRIANGLE = "Triangle 3",
   LEFT_TRIANGLE = "Triangle 4",
   PAN = "Pan",
-  FILL_COLOR = "Fill Color",
+  FILL = "Fill",
 }

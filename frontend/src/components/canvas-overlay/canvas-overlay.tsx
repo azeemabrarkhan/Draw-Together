@@ -27,10 +27,7 @@ export const CanvasOverlay = ({
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    if (
-      selectedTool !== ToolTypes.ERASER &&
-      selectedTool !== ToolTypes.FILL_COLOR
-    )
+    if (selectedTool !== ToolTypes.ERASER && selectedTool !== ToolTypes.FILL)
       return;
 
     const cursorSize =

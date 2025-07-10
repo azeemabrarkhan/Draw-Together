@@ -10,7 +10,7 @@
   position: absolute;
   pointer-events: none;
 
-  background-image: url("/icons/Fill Color.png");
+  background-image: url("/icons/Fill.png");
   background-repeat: no-repeat;
   background-size: contain;
 }
