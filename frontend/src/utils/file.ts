@@ -23,7 +23,7 @@ export const uploadFile = (type?: string): Promise<any> => {
 
     const timeout = setTimeout(
       () => reject(new Error("A timeout occurred. Please try again.")),
-      2000
+      10_000
     );
 
     input.onchange = () => {
