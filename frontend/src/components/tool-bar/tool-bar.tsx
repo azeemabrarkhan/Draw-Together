@@ -31,7 +31,8 @@ const CANVAS_ACTIONS = Object.values(CanvasActions).map((action) => ({
 
 type ToolBarPropsType = {
   isImporting: boolean;
-  color: string;
+  strokeColor: string;
+  fillColor: string;
   history: StrokeHistory[];
   redoHistory: StrokeHistory[];
   selectedTool: ToolTypes;
@@ -44,7 +45,8 @@ type ToolBarPropsType = {
 
 export const ToolBar = ({
   isImporting,
-  color,
+  strokeColor,
+  fillColor,
   history,
   redoHistory,
   selectedTool,
@@ -66,9 +68,16 @@ export const ToolBar = ({
     });
   };
 
-  const handleColorSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleStrokeColorSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCanvasConfig({
-      type: HomeStateActionTypes.SET_COLOR,
+      type: HomeStateActionTypes.SET_STROKE_COLOR,
+      payload: e.target.value,
+    });
+  };
+
+  const handleFillColorSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCanvasConfig({
+      type: HomeStateActionTypes.SET_FILL_COLOR,
       payload: e.target.value,
     });
   };
@@ -180,9 +189,14 @@ export const ToolBar = ({
         />
       ))}
       <ColorInput
-        color={color}
-        onChange={handleColorSelect}
+        color={strokeColor}
+        onChange={handleStrokeColorSelect}
         tooltipText="Stroke Color"
+      />
+      <ColorInput
+        color={fillColor}
+        onChange={handleFillColorSelect}
+        tooltipText="Fill Color"
       />
       <div className={styles["size_button_container"]}>
         <Button

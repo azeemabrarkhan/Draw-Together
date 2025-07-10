@@ -13,7 +13,8 @@ export const ZOOM_STEP = 0.5;
 
 type HomeStateType = {
   isImporting: boolean;
-  color: string;
+  strokeColor: string;
+  fillColor: string;
   history: StrokeHistory[];
   redoHistory: StrokeHistory[];
   selectedTool: ToolTypes;
@@ -36,8 +37,10 @@ const homeStateReducer = (state: HomeStateType, action: HomeStateAction) => {
   switch (action.type) {
     case HomeStateActionTypes.SET_IS_IMPORTING:
       return { ...state, isImporting: action.payload as boolean };
-    case HomeStateActionTypes.SET_COLOR:
-      return { ...state, color: action.payload as string };
+    case HomeStateActionTypes.SET_STROKE_COLOR:
+      return { ...state, strokeColor: action.payload as string };
+    case HomeStateActionTypes.SET_FILL_COLOR:
+      return { ...state, fillColor: action.payload as string };
     case HomeStateActionTypes.SET_HISTORY:
       return {
         ...state,
@@ -101,7 +104,8 @@ const homeStateReducer = (state: HomeStateType, action: HomeStateAction) => {
 export const Home = () => {
   const [canvasConfig, setCanvasConfig] = useReducer(homeStateReducer, {
     isImporting: false,
-    color: Colors.BLACK,
+    strokeColor: Colors.BLACK,
+    fillColor: Colors.WHITE,
     history: [],
     redoHistory: [],
     selectedTool: ToolTypes.DRAW,

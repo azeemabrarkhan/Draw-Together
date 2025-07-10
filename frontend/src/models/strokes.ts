@@ -4,7 +4,8 @@ import { ToolTypes } from "../enums/tool-types";
 export type StrokeData = {
   from: Coordinates;
   to: Coordinates;
-  color: string;
+  strokeColor: string;
+  fillColor: string;
   strokeSize: number;
 };
 

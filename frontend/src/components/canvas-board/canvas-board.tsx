@@ -14,7 +14,8 @@ import { CanvasOverlay } from "..";
 
 type CanvasBoardPropsType = {
   isImporting: boolean;
-  color: string;
+  strokeColor: string;
+  fillColor: string;
   history: StrokeHistory[];
   redoHistory: StrokeHistory[];
   selectedTool: ToolTypes;
@@ -26,7 +27,8 @@ type CanvasBoardPropsType = {
 };
 
 export const CanvasBoard = ({
-  color,
+  strokeColor,
+  fillColor,
   history,
   redoHistory,
   selectedTool,
@@ -146,23 +148,27 @@ export const CanvasBoard = ({
       switch (selectedTool) {
         case ToolTypes.DRAW:
         case ToolTypes.ERASER:
-          const strokeColor =
-            selectedTool === ToolTypes.ERASER ? Colors.WHITE : color;
+          const drawColor =
+            selectedTool === ToolTypes.ERASER ? Colors.WHITE : strokeColor;
+          const colorFill =
+            selectedTool === ToolTypes.ERASER ? Colors.WHITE : fillColor;
 
           drawOnCanvas(
             lastMouseCoords.current,
             currentMouseCoords,
             canvas,
             selectedTool,
-            strokeColor,
+            drawColor,
+            colorFill,
             strokeSize
           );
 
           strokesData.current.push({
             from: { ...lastMouseCoords.current },
             to: { ...currentMouseCoords },
-            color: strokeColor,
-            strokeSize: strokeSize,
+            strokeColor: drawColor,
+            fillColor: colorFill,
+            strokeSize,
           });
 
           lastMouseCoords.current = currentMouseCoords;
@@ -180,7 +186,8 @@ export const CanvasBoard = ({
             currentMouseCoords,
             canvas,
             selectedTool,
-            color,
+            strokeColor,
+            fillColor,
             strokeSize
           );
           break;
@@ -207,8 +214,9 @@ export const CanvasBoard = ({
               {
                 from: { ...lastMouseCoords.current },
                 to: { ...currentMouseCoords },
-                color: color,
-                strokeSize: strokeSize,
+                strokeColor,
+                fillColor,
+                strokeSize,
               },
             ];
 

@@ -44,7 +44,8 @@ export const drawHistory = (
         data.to,
         canvas,
         stroke.toolType,
-        data.color,
+        data.strokeColor,
+        data.fillColor,
         data.strokeSize
       )
     )
@@ -73,7 +74,8 @@ export const drawOnCanvas = (
   to: Coordinates,
   canvas: HTMLCanvasElement | null,
   toolType: ToolTypes,
-  color: string,
+  strokeColor: string,
+  fillColor: string,
   strokeWidth: number
 ) => {
   if (!canvas) return;
@@ -83,8 +85,8 @@ export const drawOnCanvas = (
   const width = to.x - from.x;
   const height = to.y - from.y;
 
-  canvasContext.strokeStyle = color;
-  canvasContext.fillStyle = color;
+  canvasContext.strokeStyle = strokeColor;
+  canvasContext.fillStyle = fillColor;
   canvasContext.lineWidth = strokeWidth;
   canvasContext.beginPath();
 
@@ -165,6 +167,6 @@ export const drawOnCanvas = (
     default:
       break;
   }
-
+  if (fillColor !== Colors.WHITE) canvasContext.fill();
   canvasContext.stroke();
 };
