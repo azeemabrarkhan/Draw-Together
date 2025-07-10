@@ -215,7 +215,7 @@ export const CanvasBoard = ({
       switch (selectedTool) {
         case ToolTypes.FILL:
           if (fillColor === Colors.WHITE) {
-            toast.info("Please select a fill color other than white.");
+            toast.warn("Please select a fill color other than white.");
             break;
           }
 
@@ -229,7 +229,7 @@ export const CanvasBoard = ({
             data = clickedElementCopy.data;
             data[0].fillColor = fillColor;
           } else {
-            toast.info(
+            toast.warn(
               "Please click on a drawn shape to apply the fill color."
             );
           }

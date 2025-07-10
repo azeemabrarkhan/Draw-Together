@@ -126,6 +126,7 @@ export const Home = () => {
             type: HomeStateActionTypes.SET_HISTORY,
             payload: data,
           });
+          toast.success("File uploaded successfully.");
         } else {
           toast.error("Unsupported JSON file format.");
         }
