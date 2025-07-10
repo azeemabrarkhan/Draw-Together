@@ -4,6 +4,15 @@ import type { Coordinates } from "../models/coordinates";
 import type { StrokeHistory } from "../models/strokes";
 
 export const ERASER_SIZE = 50;
+const SELECTABLE_SHAPES = [
+  ToolTypes.CIRCLE,
+  ToolTypes.SQUARE,
+  ToolTypes.RECTANGLE,
+  ToolTypes.UP_TRIANGLE,
+  ToolTypes.DOWN_TRIANGLE,
+  ToolTypes.RIGHT_TRIANGLE,
+  ToolTypes.LEFT_TRIANGLE,
+];
 
 export const setupCanvas = (
   canvas: HTMLCanvasElement | null,
@@ -67,6 +76,20 @@ export const getCanvasMouseCoords = (
     x: (rawX - pan.x) / zoom,
     y: (rawY - pan.y) / zoom,
   };
+};
+
+export const getClickedShape = (
+  clickCoords: Coordinates,
+  history: StrokeHistory[]
+) => {
+  return history.find(
+    (element) =>
+      SELECTABLE_SHAPES.includes(element.toolType) &&
+      element.data[0].from.x < clickCoords.x &&
+      clickCoords.x < element.data[0].to.x &&
+      element.data[0].from.y < clickCoords.y &&
+      clickCoords.y < element.data[0].to.y
+  );
 };
 
 export const drawOnCanvas = (

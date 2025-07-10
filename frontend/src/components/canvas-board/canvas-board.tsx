@@ -9,8 +9,10 @@ import {
   drawOnCanvas,
   getCanvasMouseCoords,
   setupCanvas,
+  getClickedShape,
 } from "../../utils/canvas";
 import { CanvasOverlay } from "..";
+import { toast } from "react-toastify";
 
 type CanvasBoardPropsType = {
   isImporting: boolean;
@@ -207,26 +209,58 @@ export const CanvasBoard = ({
         zoom.current
       );
 
-      const data =
-        selectedTool === ToolTypes.DRAW || selectedTool === ToolTypes.ERASER
-          ? [...strokesData.current]
-          : [
-              {
-                from: { ...lastMouseCoords.current },
-                to: { ...currentMouseCoords },
-                strokeColor,
-                fillColor,
-                strokeSize,
-              },
-            ];
+      let toolType: ToolTypes = selectedTool;
+      let data: StrokeData[] = [];
 
-      setCanvasConfig({
-        type: HomeStateActionTypes.ADD_HISTORY,
-        payload: {
-          toolType: selectedTool,
-          data,
-        },
-      });
+      switch (selectedTool) {
+        case ToolTypes.FILL:
+          if (fillColor === Colors.WHITE) {
+            toast.info("Please select a fill color other than white.");
+            break;
+          }
+
+          const clickedElement = getClickedShape(currentMouseCoords, history);
+
+          if (clickedElement) {
+            const clickedElementCopy: StrokeHistory = JSON.parse(
+              JSON.stringify(clickedElement)
+            );
+            toolType = clickedElementCopy.toolType;
+            data = clickedElementCopy.data;
+            data[0].fillColor = fillColor;
+          } else {
+            toast.info(
+              "Please click on a drawn shape to apply the fill color."
+            );
+          }
+          break;
+
+        case ToolTypes.DRAW:
+        case ToolTypes.ERASER:
+          data = strokesData.current;
+          break;
+
+        default:
+          data = [
+            {
+              from: { ...lastMouseCoords.current },
+              to: { ...currentMouseCoords },
+              strokeColor,
+              fillColor,
+              strokeSize,
+            },
+          ];
+      }
+
+      if (data.length > 0) {
+        setCanvasConfig({
+          type: HomeStateActionTypes.ADD_HISTORY,
+          payload: {
+            toolType,
+            data,
+          },
+        });
+      }
     }
 
     isDragging.current = false;
