@@ -250,7 +250,6 @@ export const CanvasBoard = ({
       />
       <CanvasOverlay
         canvasRef={canvasRef}
-        strokeSize={strokeSize}
         zoom={zoom.current}
         selectedTool={selectedTool}
       />

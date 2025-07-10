@@ -3,7 +3,7 @@ import { ToolTypes } from "../enums/tool-types";
 import type { Coordinates } from "../models/coordinates";
 import type { StrokeHistory } from "../models/strokes";
 
-export const ERASER_SCALE = 20;
+export const ERASER_SIZE = 50;
 
 export const setupCanvas = (
   canvas: HTMLCanvasElement | null,
@@ -95,12 +95,11 @@ export const drawOnCanvas = (
       break;
 
     case ToolTypes.ERASER:
-      const eraserSize = strokeWidth * ERASER_SCALE;
       canvasContext.fillRect(
-        from.x - eraserSize / 2,
-        to.y - eraserSize / 2,
-        eraserSize,
-        eraserSize
+        from.x - ERASER_SIZE / 2,
+        to.y - ERASER_SIZE / 2,
+        ERASER_SIZE,
+        ERASER_SIZE
       );
 
       break;
@@ -112,7 +111,6 @@ export const drawOnCanvas = (
 
     case ToolTypes.CIRCLE:
       const radius = Math.sqrt(width ** 2 + height ** 2) / 2;
-      canvasContext.beginPath();
       canvasContext.arc(
         from.x + width / 2,
         from.y + height / 2,

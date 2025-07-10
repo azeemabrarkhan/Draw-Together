@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ERASER_SCALE } from "../../utils";
+import { ERASER_SIZE } from "../../utils";
 import { ToolTypes } from "../../enums";
 
 import styles from "./styles.module.css";
@@ -8,7 +8,6 @@ const CURSOR_OR_ICON_SIZE = 24;
 
 type CanvasOverlayProps = {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
-  strokeSize: number;
   zoom: number;
   selectedTool: ToolTypes;
 };
@@ -20,7 +19,6 @@ const defaultState = {
 
 export const CanvasOverlay = ({
   canvasRef,
-  strokeSize,
   zoom,
   selectedTool,
 }: CanvasOverlayProps) => {
@@ -37,7 +35,7 @@ export const CanvasOverlay = ({
 
     const cursorSize =
       selectedTool === ToolTypes.ERASER
-        ? strokeSize * ERASER_SCALE * zoom
+        ? ERASER_SIZE * zoom
         : CURSOR_OR_ICON_SIZE;
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -61,7 +59,7 @@ export const CanvasOverlay = ({
       canvas.removeEventListener("mousemove", handleMouseMove);
       canvas.removeEventListener("mouseleave", handleMouseLeave);
     };
-  }, [canvasRef.current, strokeSize, zoom, selectedTool]);
+  }, [canvasRef.current, zoom, selectedTool]);
 
   const percentageZoom = new Intl.NumberFormat("en-GB", {
     style: "percent",
