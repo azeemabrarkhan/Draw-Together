@@ -189,14 +189,14 @@ export const ToolBar = ({
         />
       ))}
       <ColorInput
-        color={strokeColor}
-        onChange={handleStrokeColorSelect}
-        tooltipText="Stroke Color"
-      />
-      <ColorInput
         color={fillColor}
         onChange={handleFillColorSelect}
         tooltipText="Fill Color"
+      />
+      <ColorInput
+        color={strokeColor}
+        onChange={handleStrokeColorSelect}
+        tooltipText="Stroke Color"
       />
       <div className={styles["size_button_container"]}>
         <Button
