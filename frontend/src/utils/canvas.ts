@@ -78,14 +78,14 @@ export const getCanvasMouseCoords = (
   };
 };
 
-export const getClickedShape = (
+export const getClickedShapes = (
   clickCoords: Coordinates,
   history: StrokeHistory[]
 ) => {
   const historyCopy = [...history];
-  return historyCopy
+  const clickedElements = historyCopy
     .reverse()
-    .find(
+    .filter(
       (element) =>
         SELECTABLE_SHAPES.includes(element.toolType) &&
         element.data[0].from.x < clickCoords.x &&
@@ -93,6 +93,11 @@ export const getClickedShape = (
         element.data[0].from.y < clickCoords.y &&
         clickCoords.y < element.data[0].to.y
     );
+
+  return clickedElements.sort(
+    (a, b) =>
+      a.data[0].to.x - a.data[0].from.x - (b.data[0].to.x - b.data[0].from.x)
+  );
 };
 
 export const drawOnCanvas = (
@@ -193,6 +198,6 @@ export const drawOnCanvas = (
     default:
       break;
   }
-  canvasContext.fill();
+  if (fillColor !== Colors.WHITE) canvasContext.fill();
   canvasContext.stroke();
 };

@@ -9,7 +9,7 @@ import {
   drawOnCanvas,
   getCanvasMouseCoords,
   setupCanvas,
-  getClickedShape,
+  getClickedShapes,
 } from "../../utils/canvas";
 import { CanvasOverlay } from "..";
 import { toast } from "react-toastify";
@@ -214,7 +214,7 @@ export const CanvasBoard = ({
 
       switch (selectedTool) {
         case ToolTypes.FILL:
-          const clickedElement = getClickedShape(currentMouseCoords, history);
+          const clickedElement = getClickedShapes(currentMouseCoords, history);
           if (!clickedElement) {
             toast.warn(
               "Please click on a drawn shape to apply the fill color."
