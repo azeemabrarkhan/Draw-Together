@@ -3,9 +3,9 @@ import { toast } from "react-toastify";
 import { CanvasBoard, ToolBar } from "../../components";
 import type { Coordinates, StrokeHistory } from "../../models";
 import { ToolTypes, HomeStateActionTypes, Colors } from "../../enums";
+import { uploadFile, isStrokeHistoryArray } from "../../utils";
 
 import styles from "./styles.module.css";
-import { uploadFile, isStrokeHistoryArray } from "../../utils";
 
 const MIN_ZOOM = 1;
 const MAX_ZOOM = 5;
