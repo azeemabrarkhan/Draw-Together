@@ -207,7 +207,7 @@ export const drawOnCanvas = (
     default:
       break;
   }
-  if (fillColor !== Colors.WHITE) canvasContext.fill();
+  canvasContext.fill();
   canvasContext.stroke();
 
   return shapeTo;
