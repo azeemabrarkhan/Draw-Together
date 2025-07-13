@@ -83,16 +83,28 @@ export const getClickedShapes = (
   history: StrokeHistory[]
 ) => {
   const historyCopy = [...history];
-  const clickedElements = historyCopy
-    .reverse()
-    .filter(
-      (element) =>
-        SELECTABLE_SHAPES.includes(element.toolType) &&
-        element.data[0].from.x < clickCoords.x &&
-        clickCoords.x < element.data[0].to.x &&
-        element.data[0].from.y < clickCoords.y &&
-        clickCoords.y < element.data[0].to.y
+  const clickedElements = historyCopy.reverse().filter((element) => {
+    const { from, to } = element.data[0];
+    return (
+      SELECTABLE_SHAPES.includes(element.toolType) &&
+      ((from.x < clickCoords.x &&
+        clickCoords.x < to.x &&
+        from.y < clickCoords.y &&
+        clickCoords.y < to.y) ||
+        (from.x < clickCoords.x &&
+          clickCoords.x < to.x &&
+          from.y > clickCoords.y &&
+          clickCoords.y > to.y) ||
+        (from.x > clickCoords.x &&
+          clickCoords.x > to.x &&
+          from.y < clickCoords.y &&
+          clickCoords.y < to.y) ||
+        (from.x > clickCoords.x &&
+          clickCoords.x > to.x &&
+          from.y > clickCoords.y &&
+          clickCoords.y > to.y))
     );
+  });
 
   return clickedElements.sort(
     (a, b) =>
@@ -144,17 +156,20 @@ export const drawOnCanvas = (
       break;
 
     case ToolTypes.CIRCLE:
-      const CircleSize = Math.min(Math.abs(width), Math.abs(height));
+      const diameter = Math.min(Math.abs(width), Math.abs(height));
+      const radius = diameter / 2;
+
       canvasContext.arc(
-        from.x + CircleSize / 2,
-        from.y + CircleSize / 2,
-        CircleSize / 2,
+        to.x < from.x ? from.x - radius : from.x + radius,
+        to.y < from.y ? from.y - radius : from.y + radius,
+        radius,
         0,
         Math.PI * 2
       );
+
       shapeTo = {
-        x: to.x < from.x ? from.x - CircleSize : from.x + CircleSize,
-        y: to.y < from.y ? from.y - CircleSize : from.y + CircleSize,
+        x: to.x < from.x ? from.x - diameter : from.x + diameter,
+        y: to.y < from.y ? from.y - diameter : from.y + diameter,
       };
       break;
 
