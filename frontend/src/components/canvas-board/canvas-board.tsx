@@ -45,6 +45,7 @@ export const CanvasBoard = ({
 
   const lastPanCoords = useRef<Coordinates>({ x: 0, y: 0 });
   const lastMouseCoords = useRef<Coordinates>({ x: 0, y: 0 });
+  const shapeTo = useRef<Coordinates>({ x: 0, y: 0 });
 
   const strokesData = useRef<StrokeData[]>([]);
 
@@ -183,7 +184,7 @@ export const CanvasBoard = ({
             history
           );
 
-          drawOnCanvas(
+          const shapeEndPoint = drawOnCanvas(
             lastMouseCoords.current,
             currentMouseCoords,
             canvas,
@@ -192,6 +193,10 @@ export const CanvasBoard = ({
             fillColor,
             strokeSize
           );
+
+          if (shapeEndPoint) {
+            shapeTo.current = shapeEndPoint;
+          }
           break;
       }
     }
@@ -238,7 +243,7 @@ export const CanvasBoard = ({
           data = [
             {
               from: { ...lastMouseCoords.current },
-              to: { ...currentMouseCoords },
+              to: { ...shapeTo.current },
               strokeColor,
               fillColor,
               strokeSize,
@@ -261,6 +266,7 @@ export const CanvasBoard = ({
     isDrawing.current = false;
     lastMouseCoords.current = { x: 0, y: 0 };
     lastPanCoords.current = { x: 0, y: 0 };
+    shapeTo.current = { x: 0, y: 0 };
     strokesData.current = [];
   };
 

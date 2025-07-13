@@ -97,7 +97,7 @@ export const getClickedShapes = (
   return clickedElements.sort(
     (a, b) =>
       a.data[0].to.x - a.data[0].from.x - (b.data[0].to.x - b.data[0].from.x)
-  );
+  )[0];
 };
 
 export const drawOnCanvas = (
@@ -115,6 +115,7 @@ export const drawOnCanvas = (
 
   const width = to.x - from.x;
   const height = to.y - from.y;
+  let shapeTo: Coordinates = { ...to };
 
   canvasContext.strokeStyle = strokeColor;
   canvasContext.fillStyle = fillColor;
@@ -143,14 +144,18 @@ export const drawOnCanvas = (
       break;
 
     case ToolTypes.CIRCLE:
-      const radius = Math.sqrt(width ** 2 + height ** 2) / 2;
+      const CircleSize = Math.min(Math.abs(width), Math.abs(height));
       canvasContext.arc(
-        from.x + width / 2,
-        from.y + height / 2,
-        radius,
+        from.x + CircleSize / 2,
+        from.y + CircleSize / 2,
+        CircleSize / 2,
         0,
         Math.PI * 2
       );
+      shapeTo = {
+        x: to.x < from.x ? from.x - CircleSize : from.x + CircleSize,
+        y: to.y < from.y ? from.y - CircleSize : from.y + CircleSize,
+      };
       break;
 
     case ToolTypes.SQUARE:
@@ -161,6 +166,10 @@ export const drawOnCanvas = (
         width < 0 ? -size : size,
         height < 0 ? -size : size
       );
+      shapeTo = {
+        x: to.x < from.x ? from.x - size : from.x + size,
+        y: to.y < from.y ? from.y - size : from.y + size,
+      };
       break;
 
     case ToolTypes.RECTANGLE:
@@ -200,4 +209,6 @@ export const drawOnCanvas = (
   }
   if (fillColor !== Colors.WHITE) canvasContext.fill();
   canvasContext.stroke();
+
+  return shapeTo;
 };
