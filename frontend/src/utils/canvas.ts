@@ -37,7 +37,23 @@ export const setupCanvas = (
   canvasContext.translate(panCoords.x, panCoords.y);
   canvasContext.scale(zoom, zoom);
 
-  drawHistory(canvas, history);
+  const shapesToRender = getShapesToRender(history);
+  drawHistory(canvas, shapesToRender);
+};
+
+export const getShapesToRender = (
+  history: StrokeHistory[]
+): StrokeHistory[] => {
+  const shapesMap = new Map<string, StrokeHistory>();
+  const historyCopy = [...history];
+
+  historyCopy.reverse().forEach((shape) => {
+    if (!shapesMap.has(shape.id)) {
+      shapesMap.set(shape.id, shape);
+    }
+  });
+
+  return Array.from(shapesMap.values()).sort((a, b) => a.zIndex - b.zIndex);
 };
 
 export const drawHistory = (
@@ -106,10 +122,7 @@ export const getClickedShapes = (
     );
   });
 
-  return clickedElements.sort(
-    (a, b) =>
-      a.data[0].to.x - a.data[0].from.x - (b.data[0].to.x - b.data[0].from.x)
-  )[0];
+  return clickedElements.sort((a, b) => b.zIndex - a.zIndex)[0];
 };
 
 export const drawOnCanvas = (

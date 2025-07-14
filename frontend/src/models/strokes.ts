@@ -7,9 +7,11 @@ export type CoordinatesData = {
 };
 
 export type StrokeHistory = {
+  id: string;
   toolType: ToolTypes;
   strokeColor: string;
   fillColor: string;
   strokeSize: number;
+  zIndex: number;
   data: CoordinatesData[];
 };

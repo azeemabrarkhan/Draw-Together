@@ -19,7 +19,9 @@ export function isStrokeHistory(obj: any): obj is StrokeHistory {
     obj.data.every(isCoordinatesData) &&
     typeof obj.strokeColor === "string" &&
     typeof obj.fillColor === "string" &&
-    typeof obj.strokeSize === "number"
+    typeof obj.strokeSize === "number" &&
+    typeof obj.id === "string" &&
+    typeof obj.zIndex === "number"
   );
 }
 

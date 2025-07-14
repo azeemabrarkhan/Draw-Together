@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { nanoid } from "nanoid";
 import { ZOOM_STEP, type HomeStateAction } from "../../pages";
 import type { Coordinates, CoordinatesData, StrokeHistory } from "../../models";
 import { Colors, HomeStateActionTypes, ToolTypes } from "../../enums";
@@ -42,11 +43,10 @@ export const CanvasBoard = ({
 }: CanvasBoardPropsType) => {
   const isDrawing = useRef(false);
   const isDragging = useRef(false);
-
+  const zIndex = useRef(0);
   const lastPanCoords = useRef<Coordinates>({ x: 0, y: 0 });
   const lastMouseCoords = useRef<Coordinates>({ x: 0, y: 0 });
   const shapeTo = useRef<Coordinates>({ x: 0, y: 0 });
-
   const strokesData = useRef<CoordinatesData[]>([]);
 
   useEffect(() => {
@@ -212,10 +212,12 @@ export const CanvasBoard = ({
       );
 
       const strokeHistorySlice: StrokeHistory = {
+        id: nanoid(),
         toolType: selectedTool,
         strokeColor,
         fillColor,
         strokeSize,
+        zIndex: zIndex.current,
         data: [],
       };
 
@@ -227,13 +229,14 @@ export const CanvasBoard = ({
               "Please click on a drawn shape to apply the fill color."
             );
           } else if (clickedElement.fillColor !== fillColor) {
-            console.log("color");
+            strokeHistorySlice.id = clickedElement.id;
             strokeHistorySlice.toolType = clickedElement.toolType;
+            strokeHistorySlice.strokeColor = clickedElement.strokeColor;
+            strokeHistorySlice.strokeSize = clickedElement.strokeSize;
+            strokeHistorySlice.zIndex = clickedElement.zIndex;
             strokeHistorySlice.data = JSON.parse(
               JSON.stringify(clickedElement.data)
             );
-            strokeHistorySlice.strokeColor = clickedElement.strokeColor;
-            strokeHistorySlice.strokeSize = clickedElement.strokeSize;
           }
           break;
 
@@ -261,6 +264,10 @@ export const CanvasBoard = ({
           type: HomeStateActionTypes.ADD_HISTORY,
           payload: strokeHistorySlice,
         });
+
+        if (selectedTool !== ToolTypes.FILL) {
+          zIndex.current += 1;
+        }
       }
     }
 
