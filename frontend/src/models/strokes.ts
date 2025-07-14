@@ -8,8 +8,8 @@ export type CoordinatesData = {
 
 export type StrokeHistory = {
   toolType: ToolTypes;
-  data: CoordinatesData[];
   strokeColor: string;
   fillColor: string;
   strokeSize: number;
+  data: CoordinatesData[];
 };

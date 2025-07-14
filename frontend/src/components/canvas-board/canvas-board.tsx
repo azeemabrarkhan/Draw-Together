@@ -213,10 +213,10 @@ export const CanvasBoard = ({
 
       const strokeHistorySlice: StrokeHistory = {
         toolType: selectedTool,
-        data: [],
         strokeColor,
         fillColor,
         strokeSize,
+        data: [],
       };
 
       switch (selectedTool) {
