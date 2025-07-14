@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { ZOOM_STEP, type HomeStateAction } from "../../pages";
-import type { Coordinates, StrokeData, StrokeHistory } from "../../models";
+import type { Coordinates, CoordinatesData, StrokeHistory } from "../../models";
 import { Colors, HomeStateActionTypes, ToolTypes } from "../../enums";
 
 import styles from "./styles.module.css";
@@ -47,7 +47,7 @@ export const CanvasBoard = ({
   const lastMouseCoords = useRef<Coordinates>({ x: 0, y: 0 });
   const shapeTo = useRef<Coordinates>({ x: 0, y: 0 });
 
-  const strokesData = useRef<StrokeData[]>([]);
+  const strokesData = useRef<CoordinatesData[]>([]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -169,9 +169,6 @@ export const CanvasBoard = ({
           strokesData.current.push({
             from: { ...lastMouseCoords.current },
             to: { ...currentMouseCoords },
-            strokeColor: drawColor,
-            fillColor: colorFill,
-            strokeSize,
           });
 
           lastMouseCoords.current = currentMouseCoords;
@@ -214,8 +211,13 @@ export const CanvasBoard = ({
         zoom.current
       );
 
-      let toolType: ToolTypes = selectedTool;
-      let data: StrokeData[] = [];
+      const strokeHistorySlice: StrokeHistory = {
+        toolType: selectedTool,
+        data: [],
+        strokeColor,
+        fillColor,
+        strokeSize,
+      };
 
       switch (selectedTool) {
         case ToolTypes.FILL:
@@ -224,40 +226,40 @@ export const CanvasBoard = ({
             toast.warn(
               "Please click on a drawn shape to apply the fill color."
             );
-          } else if (clickedElement.data[0].fillColor !== fillColor) {
-            const clickedElementCopy: StrokeHistory = JSON.parse(
-              JSON.stringify(clickedElement)
+          } else if (clickedElement.fillColor !== fillColor) {
+            console.log("color");
+            strokeHistorySlice.toolType = clickedElement.toolType;
+            strokeHistorySlice.data = JSON.parse(
+              JSON.stringify(clickedElement.data)
             );
-            toolType = clickedElementCopy.toolType;
-            data = clickedElementCopy.data;
-            data[0].fillColor = fillColor;
+            strokeHistorySlice.strokeColor = clickedElement.strokeColor;
+            strokeHistorySlice.strokeSize = clickedElement.strokeSize;
           }
           break;
 
         case ToolTypes.DRAW:
+          strokeHistorySlice.data = strokesData.current;
+          break;
+
         case ToolTypes.ERASER:
-          data = strokesData.current;
+          strokeHistorySlice.data = strokesData.current;
+          strokeHistorySlice.strokeColor = Colors.WHITE;
+          strokeHistorySlice.fillColor = Colors.WHITE;
           break;
 
         default:
-          data = [
+          strokeHistorySlice.data = [
             {
               from: { ...lastMouseCoords.current },
               to: { ...shapeTo.current },
-              strokeColor,
-              fillColor,
-              strokeSize,
             },
           ];
       }
 
-      if (data.length > 0) {
+      if (strokeHistorySlice.data.length > 0) {
         setCanvasConfig({
           type: HomeStateActionTypes.ADD_HISTORY,
-          payload: {
-            toolType,
-            data,
-          },
+          payload: strokeHistorySlice,
         });
       }
     }

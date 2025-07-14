@@ -53,9 +53,9 @@ export const drawHistory = (
         data.to,
         canvas,
         stroke.toolType,
-        data.strokeColor,
-        data.fillColor,
-        data.strokeSize
+        stroke.strokeColor,
+        stroke.fillColor,
+        stroke.strokeSize
       )
     )
   );
