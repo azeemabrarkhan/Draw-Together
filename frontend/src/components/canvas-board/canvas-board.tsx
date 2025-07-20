@@ -46,7 +46,7 @@ export const CanvasBoard = ({
   const zIndex = useRef(0);
   const lastPanCoords = useRef<Coordinates>({ x: 0, y: 0 });
   const lastMouseCoords = useRef<Coordinates>({ x: 0, y: 0 });
-  const shapeTo = useRef<Coordinates>({ x: 0, y: 0 });
+  const shapeTo = useRef<Coordinates | null>(null);
   const strokesData = useRef<CoordinatesData[]>([]);
 
   useEffect(() => {
@@ -70,6 +70,8 @@ export const CanvasBoard = ({
           ? "move"
           : selectedTool === ToolTypes.ERASER || selectedTool === ToolTypes.FILL
           ? "none"
+          : selectedTool === ToolTypes.SELECT
+          ? "default"
           : "crosshair";
     }
   }, [selectedTool]);
@@ -251,12 +253,12 @@ export const CanvasBoard = ({
           break;
 
         default:
-          strokeHistorySlice.data = [
-            {
+          if (shapeTo.current) {
+            strokeHistorySlice.data.push({
               from: { ...lastMouseCoords.current },
               to: { ...shapeTo.current },
-            },
-          ];
+            });
+          }
       }
 
       if (strokeHistorySlice.data.length > 0) {
@@ -275,7 +277,7 @@ export const CanvasBoard = ({
     isDrawing.current = false;
     lastMouseCoords.current = { x: 0, y: 0 };
     lastPanCoords.current = { x: 0, y: 0 };
-    shapeTo.current = { x: 0, y: 0 };
+    shapeTo.current = null;
     strokesData.current = [];
   };
 
