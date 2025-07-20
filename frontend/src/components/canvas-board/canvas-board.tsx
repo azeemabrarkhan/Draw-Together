@@ -70,8 +70,6 @@ export const CanvasBoard = ({
           ? "move"
           : selectedTool === ToolTypes.ERASER || selectedTool === ToolTypes.FILL
           ? "none"
-          : selectedTool === ToolTypes.SELECT
-          ? "default"
           : "crosshair";
     }
   }, [selectedTool]);
