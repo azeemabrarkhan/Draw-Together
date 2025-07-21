@@ -136,10 +136,6 @@ export const CanvasBoard = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
     const currentMouseCoords = getCanvasMouseCoords(
       e,
       canvas,
@@ -150,6 +146,10 @@ export const CanvasBoard = ({
     if (selectedTool === ToolTypes.PAN) {
       isDragging.current = true;
 
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
       lastMouseCoords.current = { x, y };
       lastPanCoords.current = { ...panCoords.current };
     } else if (
@@ -158,29 +158,20 @@ export const CanvasBoard = ({
       isCoordOnShape(currentMouseCoords, selectedShape)
     ) {
       isMoving.current = true;
-      lastMouseCoords.current = { ...currentMouseCoords };
+      lastMouseCoords.current = currentMouseCoords;
       setCursorStyles(currentMouseCoords, selectedShape);
     } else if (
       selectedTool !== ToolTypes.SELECT &&
       selectedTool !== ToolTypes.FILL
     ) {
       isDrawing.current = true;
-      lastMouseCoords.current = getCanvasMouseCoords(
-        e,
-        canvas,
-        panCoords.current,
-        zoom.current
-      );
+      lastMouseCoords.current = currentMouseCoords;
     }
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
 
     const currentMouseCoords = getCanvasMouseCoords(
       e,
@@ -195,29 +186,31 @@ export const CanvasBoard = ({
 
     switch (selectedTool) {
       case ToolTypes.PAN:
-        if (isDragging.current) {
-          const dx = x - lastMouseCoords.current.x;
-          const dy = y - lastMouseCoords.current.y;
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
 
-          panCoords.current = {
-            x: lastPanCoords.current.x + dx,
-            y: lastPanCoords.current.y + dy,
-          };
+        const dx = x - lastMouseCoords.current.x;
+        const dy = y - lastMouseCoords.current.y;
 
-          setupCanvas(
-            canvasRef.current,
-            panCoords.current,
-            zoom.current,
-            history
-          );
-        }
+        panCoords.current = {
+          x: lastPanCoords.current.x + dx,
+          y: lastPanCoords.current.y + dy,
+        };
+
+        setupCanvas(
+          canvasRef.current,
+          panCoords.current,
+          zoom.current,
+          history
+        );
         break;
 
       case ToolTypes.SELECT:
-        const dx = currentMouseCoords.x - lastMouseCoords.current.x;
-        const dy = currentMouseCoords.y - lastMouseCoords.current.y;
-
         if (selectedShape) {
+          const dx = currentMouseCoords.x - lastMouseCoords.current.x;
+          const dy = currentMouseCoords.y - lastMouseCoords.current.y;
+
           shapeFrom.current = {
             x: selectedShape.data[0].from.x + dx,
             y: selectedShape.data[0].from.y + dy,
