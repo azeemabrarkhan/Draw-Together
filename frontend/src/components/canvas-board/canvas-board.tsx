@@ -314,7 +314,7 @@ export const CanvasBoard = ({
           strokeHistorySlice = {
             ...clickedElement,
             fillColor,
-            data: JSON.parse(JSON.stringify(clickedElement.data)),
+            data: structuredClone(clickedElement.data),
           };
         }
         break;
@@ -351,7 +351,7 @@ export const CanvasBoard = ({
             payload: clickedShape ?? null,
           });
         }
-        
+
         break;
       }
 
