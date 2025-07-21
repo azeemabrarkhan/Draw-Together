@@ -217,8 +217,6 @@ export const CanvasBoard = ({
         const dx = currentMouseCoords.x - lastMouseCoords.current.x;
         const dy = currentMouseCoords.y - lastMouseCoords.current.y;
 
-        console.table({ x: dx, y: dy });
-
         if (selectedShape) {
           shapeFrom.current = {
             x: selectedShape.data[0].from.x + dx,
