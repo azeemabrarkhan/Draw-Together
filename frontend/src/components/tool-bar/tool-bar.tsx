@@ -95,7 +95,8 @@ export const ToolBar = ({
     switch (actionName) {
       case CanvasActions.NEW:
         setCanvasConfig({
-          type: HomeStateActionTypes.NEW_CANVAS,
+          type: HomeStateActionTypes.SET_HISTORY,
+          payload: [],
         });
         break;
       case CanvasActions.UNDO:

@@ -4,10 +4,10 @@ export enum HomeStateActionTypes {
   SET_FILL_COLOR,
   SET_HISTORY,
   ADD_HISTORY,
-  NEW_CANVAS,
   UNDO,
   REDO,
   SET_TOOL,
   SET_STROKE_SIZE,
   SET_ZOOM,
+  SET_SELECTED_SHAPE,
 }
