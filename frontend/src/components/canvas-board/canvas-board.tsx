@@ -351,7 +351,7 @@ export const CanvasBoard = ({
             payload: clickedShape ?? null,
           });
         }
-
+        
         break;
       }
 
