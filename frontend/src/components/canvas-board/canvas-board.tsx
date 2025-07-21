@@ -158,8 +158,8 @@ export const CanvasBoard = ({
       isCoordOnShape(currentMouseCoords, selectedShape)
     ) {
       isMoving.current = true;
-      lastMouseCoords.current = { x, y };
-      setCursorStyles({ x, y }, selectedShape);
+      lastMouseCoords.current = { ...currentMouseCoords };
+      setCursorStyles(currentMouseCoords, selectedShape);
     } else if (
       selectedTool !== ToolTypes.SELECT &&
       selectedTool !== ToolTypes.FILL
@@ -182,16 +182,16 @@ export const CanvasBoard = ({
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    setCursorStyles({ x, y }, selectedShape);
-
-    if (!isDragging.current && !isDrawing.current && !isMoving.current) return;
-
     const currentMouseCoords = getCanvasMouseCoords(
       e,
       canvas,
       panCoords.current,
       zoom.current
     );
+
+    setCursorStyles(currentMouseCoords, selectedShape);
+
+    if (!isDragging.current && !isDrawing.current && !isMoving.current) return;
 
     switch (selectedTool) {
       case ToolTypes.PAN:
@@ -214,8 +214,10 @@ export const CanvasBoard = ({
         break;
 
       case ToolTypes.SELECT:
-        const dx = x - lastMouseCoords.current.x;
-        const dy = y - lastMouseCoords.current.y;
+        const dx = currentMouseCoords.x - lastMouseCoords.current.x;
+        const dy = currentMouseCoords.y - lastMouseCoords.current.y;
+
+        console.table({ x: dx, y: dy });
 
         if (selectedShape) {
           shapeFrom.current = {
@@ -328,10 +330,6 @@ export const CanvasBoard = ({
       }
 
       case ToolTypes.SELECT: {
-        const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-
         if (isMoving.current) {
           isMoving.current = false;
 
@@ -341,20 +339,20 @@ export const CanvasBoard = ({
               data: [{ from: shapeFrom.current, to: shapeTo.current }],
             };
 
-            setCursorStyles({ x, y }, strokeHistorySlice);
+            setCursorStyles(currentMouseCoords, strokeHistorySlice);
 
             setCanvasConfig({
               type: HomeStateActionTypes.SET_SELECTED_SHAPE,
               payload: strokeHistorySlice,
             });
           } else {
-            setCursorStyles({ x, y }, selectedShape);
+            setCursorStyles(currentMouseCoords, selectedShape);
           }
         } else {
           const clickedShape = getShapeAtPosition(currentMouseCoords, history);
 
           if (clickedShape) {
-            setCursorStyles({ x, y }, clickedShape);
+            setCursorStyles(currentMouseCoords, clickedShape);
           }
 
           setCanvasConfig({
