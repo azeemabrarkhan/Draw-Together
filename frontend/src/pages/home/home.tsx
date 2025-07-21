@@ -20,6 +20,7 @@ type HomeStateType = {
   selectedTool: ToolTypes;
   strokeSize: number;
   zoom: { current: number; last: number };
+  selectedShape: StrokeHistory | null;
 };
 
 export type HomeStateAction = {
@@ -30,7 +31,8 @@ export type HomeStateAction = {
     | string
     | ToolTypes
     | StrokeHistory
-    | StrokeHistory[];
+    | StrokeHistory[]
+    | null;
 };
 
 const homeStateReducer = (state: HomeStateType, action: HomeStateAction) => {
@@ -46,17 +48,12 @@ const homeStateReducer = (state: HomeStateType, action: HomeStateAction) => {
         ...state,
         redoHistory: [],
         history: action.payload as StrokeHistory[],
+        selectedShape: null,
       };
     case HomeStateActionTypes.ADD_HISTORY:
       return {
         ...state,
         history: state.history.concat(action.payload as StrokeHistory),
-      };
-    case HomeStateActionTypes.NEW_CANVAS:
-      return {
-        ...state,
-        history: [],
-        redoHistory: [],
       };
     case HomeStateActionTypes.UNDO: {
       const historyCopy = [...state.history];
@@ -69,6 +66,7 @@ const homeStateReducer = (state: HomeStateType, action: HomeStateAction) => {
         ...state,
         history: historyCopy,
         redoHistory: redoHistoryCopy,
+        selectedShape: null,
       };
     }
     case HomeStateActionTypes.REDO: {
@@ -81,10 +79,15 @@ const homeStateReducer = (state: HomeStateType, action: HomeStateAction) => {
         ...state,
         history: historyCopy,
         redoHistory: redoHistoryCopy,
+        selectedShape: null,
       };
     }
     case HomeStateActionTypes.SET_TOOL:
-      return { ...state, selectedTool: action.payload as ToolTypes };
+      return {
+        ...state,
+        selectedTool: action.payload as ToolTypes,
+        selectedShape: null,
+      };
     case HomeStateActionTypes.SET_STROKE_SIZE:
       return { ...state, strokeSize: action.payload as number };
     case HomeStateActionTypes.SET_ZOOM:
@@ -98,6 +101,11 @@ const homeStateReducer = (state: HomeStateType, action: HomeStateAction) => {
           ...state,
           zoom: { current: action.payload as number, last: state.zoom.current },
         };
+    case HomeStateActionTypes.SET_SELECTED_SHAPE:
+      return {
+        ...state,
+        selectedShape: action.payload as StrokeHistory | null,
+      };
   }
 };
 
@@ -111,6 +119,7 @@ export const Home = () => {
     selectedTool: ToolTypes.DRAW,
     strokeSize: 2,
     zoom: { current: MIN_ZOOM, last: MIN_ZOOM },
+    selectedShape: null,
   });
 
   const canvasRef = useRef<HTMLCanvasElement>(null);

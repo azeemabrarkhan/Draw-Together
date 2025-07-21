@@ -4,7 +4,7 @@ import type { Coordinates } from "../models/coordinates";
 import type { StrokeHistory } from "../models/strokes";
 
 export const ERASER_SIZE = 50;
-const SELECTABLE_SHAPES = [
+const INTERACTABLE_SHAPES = [
   ToolTypes.CIRCLE,
   ToolTypes.SQUARE,
   ToolTypes.RECTANGLE,
@@ -12,6 +12,7 @@ const SELECTABLE_SHAPES = [
   ToolTypes.DOWN_TRIANGLE,
   ToolTypes.RIGHT_TRIANGLE,
   ToolTypes.LEFT_TRIANGLE,
+  ToolTypes.LINE,
 ];
 
 export const setupCanvas = (
@@ -94,35 +95,42 @@ export const getCanvasMouseCoords = (
   };
 };
 
-export const getClickedShapes = (
-  clickCoords: Coordinates,
+export const isCoordOnShape = (coords: Coordinates, shape: StrokeHistory) => {
+  if (!INTERACTABLE_SHAPES.includes(shape.toolType)) return false;
+
+  const { from, to } = shape.data[0];
+
+  return (
+    (from.x < coords.x &&
+      coords.x < to.x &&
+      from.y < coords.y &&
+      coords.y < to.y) ||
+    (from.x < coords.x &&
+      coords.x < to.x &&
+      from.y > coords.y &&
+      coords.y > to.y) ||
+    (from.x > coords.x &&
+      coords.x > to.x &&
+      from.y < coords.y &&
+      coords.y < to.y) ||
+    (from.x > coords.x &&
+      coords.x > to.x &&
+      from.y > coords.y &&
+      coords.y > to.y)
+  );
+};
+
+export const getShapeAtPosition = (
+  coords: Coordinates,
   history: StrokeHistory[]
 ) => {
-  const historyCopy = [...history];
-  const clickedElements = historyCopy.reverse().filter((element) => {
-    const { from, to } = element.data[0];
-    return (
-      SELECTABLE_SHAPES.includes(element.toolType) &&
-      ((from.x < clickCoords.x &&
-        clickCoords.x < to.x &&
-        from.y < clickCoords.y &&
-        clickCoords.y < to.y) ||
-        (from.x < clickCoords.x &&
-          clickCoords.x < to.x &&
-          from.y > clickCoords.y &&
-          clickCoords.y > to.y) ||
-        (from.x > clickCoords.x &&
-          clickCoords.x > to.x &&
-          from.y < clickCoords.y &&
-          clickCoords.y < to.y) ||
-        (from.x > clickCoords.x &&
-          clickCoords.x > to.x &&
-          from.y > clickCoords.y &&
-          clickCoords.y > to.y))
-    );
-  });
+  const shapesToRender = getShapesToRender(history);
 
-  return clickedElements.sort((a, b) => b.zIndex - a.zIndex)[0];
+  const clickedElements = shapesToRender
+    .filter((shape) => isCoordOnShape(coords, shape))
+    .sort((a, b) => b.zIndex - a.zIndex);
+
+  return clickedElements[0];
 };
 
 export const drawOnCanvas = (
