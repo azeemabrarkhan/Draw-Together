@@ -6,6 +6,7 @@ import {
   downloadFile,
   downloadObjAsEncodedFile,
   getCurrentTimeStamp,
+  setupCanvas,
 } from "../../utils";
 import {
   ToolTypes,
@@ -54,6 +55,7 @@ export const ToolBar = ({
   zoom,
   setCanvasConfig,
   canvasRef,
+  panCoords,
 }: ToolBarPropsType) => {
   const [isSizeToolTipOpen, setIsSizeToolTipOpen] = useState(false);
 
@@ -113,6 +115,13 @@ export const ToolBar = ({
 
       case CanvasActions.SAVE:
         if (!canvasRef.current) return;
+
+        setupCanvas(
+          canvasRef.current,
+          panCoords.current,
+          zoom.current,
+          history
+        );
 
         downloadFile(
           canvasRef.current.toDataURL("image/jpeg", 1),
