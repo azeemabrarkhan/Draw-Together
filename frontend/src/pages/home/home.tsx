@@ -48,6 +48,7 @@ const homeStateReducer = (state: HomeStateType, action: HomeStateAction) => {
         ...state,
         redoHistory: [],
         history: action.payload as StrokeHistory[],
+        selectedShape: null,
       };
     case HomeStateActionTypes.ADD_HISTORY:
       return {
@@ -65,6 +66,7 @@ const homeStateReducer = (state: HomeStateType, action: HomeStateAction) => {
         ...state,
         history: historyCopy,
         redoHistory: redoHistoryCopy,
+        selectedShape: null,
       };
     }
     case HomeStateActionTypes.REDO: {
@@ -77,6 +79,7 @@ const homeStateReducer = (state: HomeStateType, action: HomeStateAction) => {
         ...state,
         history: historyCopy,
         redoHistory: redoHistoryCopy,
+        selectedShape: null,
       };
     }
     case HomeStateActionTypes.SET_TOOL:

@@ -12,6 +12,7 @@ const INTERACTABLE_SHAPES = [
   ToolTypes.DOWN_TRIANGLE,
   ToolTypes.RIGHT_TRIANGLE,
   ToolTypes.LEFT_TRIANGLE,
+  ToolTypes.LINE,
 ];
 
 export const setupCanvas = (

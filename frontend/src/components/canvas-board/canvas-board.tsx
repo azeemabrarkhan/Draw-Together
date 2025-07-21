@@ -16,6 +16,10 @@ import {
 import { CanvasOverlay } from "..";
 import { toast } from "react-toastify";
 
+const SELECT_BORDER_LINE_WIDTH = 2;
+const SELECT_BORDER_LINE_DASH = [10, 10];
+const SELECT_BOX_PADDING = 10;
+
 type CanvasBoardPropsType = {
   isImporting: boolean;
   strokeColor: string;
@@ -89,6 +93,35 @@ export const CanvasBoard = ({
     },
     [selectedTool]
   );
+
+  const drawBorderAroundShape = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const canvasContext = canvas.getContext("2d");
+    if (!canvasContext) return;
+
+    if (selectedShape?.data[0]) {
+      canvasContext.strokeStyle = Colors.BLACK;
+      canvasContext.lineWidth = SELECT_BORDER_LINE_WIDTH;
+      canvasContext.setLineDash(SELECT_BORDER_LINE_DASH);
+
+      const x =
+        Math.min(selectedShape.data[0].from.x, selectedShape.data[0].to.x) -
+        SELECT_BOX_PADDING;
+      const y =
+        Math.min(selectedShape.data[0].from.y, selectedShape.data[0].to.y) -
+        SELECT_BOX_PADDING;
+      const width =
+        Math.abs(selectedShape.data[0].to.x - selectedShape.data[0].from.x) +
+        2 * SELECT_BOX_PADDING;
+      const height =
+        Math.abs(selectedShape.data[0].to.y - selectedShape.data[0].from.y) +
+        2 * SELECT_BOX_PADDING;
+
+      canvasContext.rect(x, y, width, height);
+      canvasContext.stroke();
+    }
+  }, [selectedShape]);
 
   const handleZoom = (e: React.WheelEvent<HTMLCanvasElement>) => {
     const direction = e.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP;
@@ -185,34 +218,23 @@ export const CanvasBoard = ({
         const dy = y - lastMouseCoords.current.y;
 
         if (selectedShape) {
-          setupCanvas(
-            canvasRef.current,
-            panCoords.current,
-            zoom.current,
-            history.filter((shape) => selectedShape.id !== shape.id)
-          );
-
           shapeFrom.current = {
             x: selectedShape.data[0].from.x + dx,
             y: selectedShape.data[0].from.y + dy,
           };
 
-          const shapeEndPoint = drawOnCanvas(
-            shapeFrom.current,
-            {
-              x: selectedShape.data[0].to.x + dx,
-              y: selectedShape.data[0].to.y + dy,
-            },
-            canvas,
-            selectedShape.toolType,
-            selectedShape.strokeColor,
-            selectedShape.fillColor,
-            selectedShape.strokeSize
-          );
+          shapeTo.current = {
+            x: selectedShape.data[0].to.x + dx,
+            y: selectedShape.data[0].to.y + dy,
+          };
 
-          if (shapeEndPoint) {
-            shapeTo.current = shapeEndPoint;
-          }
+          setupCanvas(canvasRef.current, panCoords.current, zoom.current, [
+            ...history.filter((shape) => selectedShape.id !== shape.id),
+            {
+              ...selectedShape,
+              data: [{ from: shapeFrom.current, to: shapeTo.current }],
+            },
+          ]);
         }
         break;
 
@@ -293,7 +315,7 @@ export const CanvasBoard = ({
 
       case ToolTypes.FILL: {
         const clickedElement = getShapeAtPosition(currentMouseCoords, history);
-        if (!clickedElement) {
+        if (!clickedElement || clickedElement?.toolType === ToolTypes.LINE) {
           toast.warn("Please click on a drawn shape to apply the fill color.");
         } else if (clickedElement.fillColor !== fillColor) {
           strokeHistorySlice = {
@@ -395,7 +417,9 @@ export const CanvasBoard = ({
 
   useEffect(() => {
     setupCanvas(canvasRef.current, panCoords.current, zoom.current, history);
-  }, [history, redoHistory]);
+
+    drawBorderAroundShape();
+  }, [history, redoHistory, drawBorderAroundShape]);
 
   useEffect(() => setCursorStyles(), [setCursorStyles]);
 
@@ -435,7 +459,6 @@ export const CanvasBoard = ({
         canvasRef={canvasRef}
         zoom={zoom.current}
         selectedTool={selectedTool}
-        selectedShape={selectedShape}
       />
     </>
   );
