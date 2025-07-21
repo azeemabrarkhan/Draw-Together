@@ -78,8 +78,7 @@ export const CanvasBoard = ({
               selectedShape &&
               isCoordOnShape(mousePosition, selectedShape)
             ) {
-              if (isMoving.current) canvas.style.cursor = "grabbing";
-              else canvas.style.cursor = "grab";
+              canvas.style.cursor = isMoving.current ? "grabbing" : "grab";
             } else if (!isMoving.current) {
               canvas.style.cursor = "default";
             }
@@ -118,8 +117,7 @@ export const CanvasBoard = ({
         Math.abs(selectedShape.data[0].to.y - selectedShape.data[0].from.y) +
         2 * SELECT_BOX_PADDING;
 
-      canvasContext.rect(x, y, width, height);
-      canvasContext.stroke();
+      canvasContext.strokeRect(x, y, width, height);
     }
   }, [selectedShape]);
 
@@ -406,7 +404,10 @@ export const CanvasBoard = ({
 
   useEffect(() => {
     setupCanvas(canvasRef.current, panCoords.current, zoom.current, history);
+  }, [history, redoHistory]);
 
+  useEffect(() => {
+    setupCanvas(canvasRef.current, panCoords.current, zoom.current, history);
     drawBorderAroundShape();
   }, [history, redoHistory, drawBorderAroundShape]);
 
