@@ -56,6 +56,8 @@ export const CanvasBoard = ({
   const lastMouseCoords = useRef<Coordinates>({ x: 0, y: 0 });
   const shapeFrom = useRef<Coordinates | null>(null);
   const shapeTo = useRef<Coordinates | null>(null);
+  const borderFrom = useRef<Coordinates | null>(null);
+  const borderTo = useRef<Coordinates | null>(null);
   const strokesData = useRef<CoordinatesData[]>([]);
 
   const setCursorStyles = useCallback(
@@ -73,12 +75,88 @@ export const CanvasBoard = ({
             break;
 
           case ToolTypes.SELECT:
-            if (
-              mousePosition &&
-              selectedShape &&
-              isCoordOnShape(mousePosition, selectedShape)
-            ) {
-              canvas.style.cursor = isMoving.current ? "grabbing" : "grab";
+            if (mousePosition && selectedShape) {
+              const { x, y } = mousePosition;
+              const from = borderFrom.current;
+              const to = borderTo.current;
+
+              if (isCoordOnShape(mousePosition, selectedShape)) {
+                canvas.style.cursor = isMoving.current ? "grabbing" : "grab";
+              } else if (
+                from &&
+                to &&
+                from.x < x &&
+                from.y + SELECT_BOX_PADDING < y &&
+                from.x + SELECT_BOX_PADDING > x &&
+                to.y - SELECT_BOX_PADDING > y
+              ) {
+                canvas.style.cursor = "ew-resize";
+              } else if (
+                from &&
+                to &&
+                x >= to.x - SELECT_BOX_PADDING &&
+                x <= to.x + SELECT_BOX_PADDING &&
+                y >= from.y + SELECT_BOX_PADDING &&
+                y <= to.y - SELECT_BOX_PADDING
+              ) {
+                canvas.style.cursor = "ew-resize";
+              } else if (
+                from &&
+                to &&
+                y >= from.y - SELECT_BOX_PADDING &&
+                y <= from.y + SELECT_BOX_PADDING &&
+                x >= from.x + SELECT_BOX_PADDING &&
+                x <= to.x - SELECT_BOX_PADDING
+              ) {
+                canvas.style.cursor = "ns-resize";
+              } else if (
+                from &&
+                to &&
+                y >= to.y - SELECT_BOX_PADDING &&
+                y <= to.y + SELECT_BOX_PADDING &&
+                x >= from.x + SELECT_BOX_PADDING &&
+                x <= to.x - SELECT_BOX_PADDING
+              ) {
+                canvas.style.cursor = "ns-resize";
+              } else if (
+                from &&
+                to &&
+                x >= from.x - SELECT_BOX_PADDING &&
+                x <= from.x + SELECT_BOX_PADDING &&
+                y >= from.y - SELECT_BOX_PADDING &&
+                y <= from.y + SELECT_BOX_PADDING
+              ) {
+                canvas.style.cursor = "nwse-resize";
+              } else if (
+                from &&
+                to &&
+                x >= to.x - SELECT_BOX_PADDING &&
+                x <= to.x + SELECT_BOX_PADDING &&
+                y >= from.y - SELECT_BOX_PADDING &&
+                y <= from.y + SELECT_BOX_PADDING
+              ) {
+                canvas.style.cursor = "nesw-resize";
+              } else if (
+                from &&
+                to &&
+                x >= from.x - SELECT_BOX_PADDING &&
+                x <= from.x + SELECT_BOX_PADDING &&
+                y >= to.y - SELECT_BOX_PADDING &&
+                y <= to.y + SELECT_BOX_PADDING
+              ) {
+                canvas.style.cursor = "nesw-resize";
+              } else if (
+                from &&
+                to &&
+                x >= to.x - SELECT_BOX_PADDING &&
+                x <= to.x + SELECT_BOX_PADDING &&
+                y >= to.y - SELECT_BOX_PADDING &&
+                y <= to.y + SELECT_BOX_PADDING
+              ) {
+                canvas.style.cursor = "nwse-resize";
+              } else if (!isMoving.current) {
+                canvas.style.cursor = "default";
+              }
             } else if (!isMoving.current) {
               canvas.style.cursor = "default";
             }
@@ -99,6 +177,9 @@ export const CanvasBoard = ({
     const canvasContext = canvas.getContext("2d");
     if (!canvasContext) return;
 
+    borderFrom.current = null;
+    borderTo.current = null;
+
     if (selectedShape?.data[0]) {
       canvasContext.strokeStyle = Colors.BLACK;
       canvasContext.lineWidth = SELECT_BORDER_LINE_WIDTH;
@@ -116,6 +197,9 @@ export const CanvasBoard = ({
       const height =
         Math.abs(selectedShape.data[0].to.y - selectedShape.data[0].from.y) +
         2 * SELECT_BOX_PADDING;
+
+      borderFrom.current = { x, y };
+      borderTo.current = { x: x + width, y: y + height };
 
       canvasContext.strokeRect(x, y, width, height);
     }
