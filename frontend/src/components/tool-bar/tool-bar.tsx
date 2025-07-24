@@ -42,6 +42,7 @@ type ToolBarPropsType = {
   setCanvasConfig: React.ActionDispatch<[action: HomeStateAction]>;
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
   panCoords: React.RefObject<Coordinates>;
+  selectedShape: StrokeHistory | null;
 };
 
 export const ToolBar = ({
@@ -56,6 +57,7 @@ export const ToolBar = ({
   setCanvasConfig,
   canvasRef,
   panCoords,
+  selectedShape,
 }: ToolBarPropsType) => {
   const [isSizeToolTipOpen, setIsSizeToolTipOpen] = useState(false);
 
@@ -130,6 +132,11 @@ export const ToolBar = ({
         break;
 
       case CanvasActions.EXPORT:
+        setCanvasConfig({
+          type: HomeStateActionTypes.SET_SELECTED_SHAPE,
+          payload: null,
+        });
+
         downloadObjAsEncodedFile(history, `${getCurrentTimeStamp()}-canvas`);
         break;
 
@@ -154,6 +161,36 @@ export const ToolBar = ({
         });
         break;
 
+      case CanvasActions.MOVE_FORWARD:
+      case CanvasActions.MOVE_BACKWARD:
+        if (canvasRef.current && selectedShape) {
+          const zIndexs = history.map((shape) => shape.zIndex);
+          const minZIndex = Math.min(...zIndexs);
+          const maxZIndex = Math.max(...zIndexs);
+          const newZIndex =
+            actionName === CanvasActions.MOVE_FORWARD
+              ? maxZIndex + 1
+              : minZIndex - 1;
+
+          const shapeWithUpdateIndex = {
+            ...selectedShape,
+            zIndex: newZIndex,
+            data: structuredClone(selectedShape.data),
+          };
+
+          setCanvasConfig({
+            type: HomeStateActionTypes.ADD_HISTORY,
+            payload: shapeWithUpdateIndex,
+          });
+
+          setCanvasConfig({
+            type: HomeStateActionTypes.SET_SELECTED_SHAPE,
+            payload: shapeWithUpdateIndex,
+          });
+        }
+
+        break;
+
       default:
         break;
     }
@@ -174,6 +211,10 @@ export const ToolBar = ({
 
       case CanvasActions.IMPORT:
         return isImporting;
+
+      case CanvasActions.MOVE_BACKWARD:
+      case CanvasActions.MOVE_FORWARD:
+        return selectedShape === null;
     }
   };
 
