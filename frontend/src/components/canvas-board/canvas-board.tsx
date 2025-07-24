@@ -750,14 +750,9 @@ export const CanvasBoard = ({
 
   useEffect(() => {
     setupCanvas(canvasRef.current, panCoords.current, zoom.current, history);
-  }, [history, redoHistory]);
-
-  useEffect(() => {
-    setupCanvas(canvasRef.current, panCoords.current, zoom.current, history);
     drawBorderAroundShape();
-  }, [history, redoHistory, drawBorderAroundShape]);
-
-  useEffect(() => setCursorStyles(), [setCursorStyles]);
+    setCursorStyles();
+  }, [history, redoHistory, drawBorderAroundShape, setCursorStyles]);
 
   useEffect(() => {
     const canvas = canvasRef.current;

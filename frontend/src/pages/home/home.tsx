@@ -100,6 +100,7 @@ const homeStateReducer = (state: HomeStateType, action: HomeStateAction) => {
         return {
           ...state,
           zoom: { current: action.payload as number, last: state.zoom.current },
+          selectedShape: null,
         };
     case HomeStateActionTypes.SET_SELECTED_SHAPE:
       return {
