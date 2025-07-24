@@ -20,15 +20,36 @@ import styles from "./styles.module.css";
 const STROKE_SIZES = [2, 4, 6, 8, 10];
 const STROKE_SIZE_BUTTON_ICON = `url("/icons/Stroke Size.png")`;
 
-const TOOLS = Object.values(ToolTypes).map((tool) => ({
-  name: tool,
-  icon: `url("/icons/${tool}.png")`,
+const BUTTONS_TO_RENDER = [
+  CanvasActions.NEW,
+  CanvasActions.SAVE,
+  CanvasActions.EXPORT,
+  CanvasActions.IMPORT,
+  CanvasActions.UNDO,
+  CanvasActions.REDO,
+  CanvasActions.ZOOM_IN,
+  CanvasActions.ZOOM_OUT,
+  ToolTypes.PAN,
+  ToolTypes.SELECT,
+  CanvasActions.MOVE_FORWARD,
+  CanvasActions.MOVE_BACKWARD,
+  ToolTypes.DRAW,
+  ToolTypes.ERASER,
+  ToolTypes.LINE,
+  ToolTypes.CIRCLE,
+  ToolTypes.SQUARE,
+  ToolTypes.RECTANGLE,
+  ToolTypes.UP_TRIANGLE,
+  ToolTypes.RIGHT_TRIANGLE,
+  ToolTypes.DOWN_TRIANGLE,
+  ToolTypes.LEFT_TRIANGLE,
+  ToolTypes.FILL,
+].map((name) => ({
+  name: name,
+  icon: `url("/icons/${name}.png")`,
 }));
 
-const CANVAS_ACTIONS = Object.values(CanvasActions).map((action) => ({
-  name: action,
-  icon: `url("/icons/${action}.png")`,
-}));
+const CANVAS_ACTIONS = Object.values(CanvasActions);
 
 type ToolBarPropsType = {
   isImporting: boolean;
@@ -220,25 +241,26 @@ export const ToolBar = ({
 
   return (
     <div className={styles["tool_bar"]}>
-      {CANVAS_ACTIONS.map((action) => (
-        <Button
-          key={action.name}
-          isSelected={false}
-          onClick={() => handleCanvasAction(action.name)}
-          url={action.icon}
-          isDisabled={getButtonState(action.name)}
-          tooltipText={action.name}
-        />
-      ))}
-      {TOOLS.map((tool) => (
-        <Button
-          key={tool.name}
-          isSelected={tool.name === selectedTool}
-          onClick={() => handleToolSelect(tool.name)}
-          url={tool.icon}
-          tooltipText={tool.name}
-        />
-      ))}
+      {BUTTONS_TO_RENDER.map((button) => {
+        return CANVAS_ACTIONS.includes(button.name as CanvasActions) ? (
+          <Button
+            key={button.name}
+            isSelected={false}
+            onClick={() => handleCanvasAction(button.name as CanvasActions)}
+            url={button.icon}
+            isDisabled={getButtonState(button.name as CanvasActions)}
+            tooltipText={button.name}
+          />
+        ) : (
+          <Button
+            key={button.name}
+            isSelected={button.name === selectedTool}
+            onClick={() => handleToolSelect(button.name as ToolTypes)}
+            url={button.icon}
+            tooltipText={button.name}
+          />
+        );
+      })}
       <ColorInput
         color={fillColor}
         onChange={handleFillColorSelect}
