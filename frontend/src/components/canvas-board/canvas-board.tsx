@@ -615,10 +615,15 @@ export const CanvasBoard = ({
           strokeSize
         );
 
-        shapeTo.current = getNormalizedEndPointForSymmetricalShapes(
-          lastMouseCoords.current,
-          currentMouseCoords
-        );
+        if (SYMMETRICAL_SHAPES.includes(selectedTool)) {
+          shapeTo.current = getNormalizedEndPointForSymmetricalShapes(
+            lastMouseCoords.current,
+            currentMouseCoords
+          );
+        } else {
+          shapeTo.current = currentMouseCoords;
+        }
+
         break;
     }
   };
