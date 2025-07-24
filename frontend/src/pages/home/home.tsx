@@ -7,9 +7,10 @@ import { uploadFile, isStrokeHistoryArray } from "../../utils";
 
 import styles from "./styles.module.css";
 
-const MIN_ZOOM = 1;
+const MIN_ZOOM = 0.5;
 const MAX_ZOOM = 5;
 export const ZOOM_STEP = 0.5;
+const DEFAULT_ZOOM = 1;
 
 type HomeStateType = {
   isImporting: boolean;
@@ -119,7 +120,7 @@ export const Home = () => {
     redoHistory: [],
     selectedTool: ToolTypes.DRAW,
     strokeSize: 2,
-    zoom: { current: MIN_ZOOM, last: MIN_ZOOM },
+    zoom: { current: DEFAULT_ZOOM, last: DEFAULT_ZOOM },
     selectedShape: null,
   });
 
