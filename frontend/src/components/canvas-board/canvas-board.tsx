@@ -1,11 +1,16 @@
 import { useCallback, useEffect, useRef } from "react";
+import { toast } from "react-toastify";
 import { nanoid } from "nanoid";
 import { ZOOM_STEP, type HomeStateAction } from "../../pages";
 import type { Coordinates, CoordinatesData, StrokeHistory } from "../../models";
-import { Colors, HomeStateActionTypes, ToolTypes } from "../../enums";
-
-import styles from "./styles.module.css";
-
+import {
+  Colors,
+  HomeStateActionTypes,
+  ToolTypes,
+  ShapeResizePoints as ShapeResizeDirections,
+  Cursors,
+} from "../../enums";
+import { CanvasOverlay } from "..";
 import {
   drawOnCanvas,
   getCanvasMouseCoords,
@@ -13,12 +18,13 @@ import {
   getShapeAtPosition,
   isCoordOnShape,
 } from "../../utils/canvas";
-import { CanvasOverlay } from "..";
-import { toast } from "react-toastify";
+
+import styles from "./styles.module.css";
 
 const SELECT_BORDER_LINE_WIDTH = 2;
 const SELECT_BORDER_LINE_DASH = [10, 10];
 const SELECT_BOX_PADDING = 10;
+const SYMMETRICAL_SHAPES = [ToolTypes.CIRCLE, ToolTypes.SQUARE];
 
 type CanvasBoardPropsType = {
   isImporting: boolean;
@@ -51,12 +57,16 @@ export const CanvasBoard = ({
   const isDrawing = useRef(false);
   const isDragging = useRef(false);
   const isMoving = useRef(false);
+  const isResizing = useRef(false);
   const zIndex = useRef(0);
   const lastPanCoords = useRef<Coordinates>({ x: 0, y: 0 });
   const lastMouseCoords = useRef<Coordinates>({ x: 0, y: 0 });
   const shapeFrom = useRef<Coordinates | null>(null);
   const shapeTo = useRef<Coordinates | null>(null);
+  const borderFrom = useRef<Coordinates | null>(null);
+  const borderTo = useRef<Coordinates | null>(null);
   const strokesData = useRef<CoordinatesData[]>([]);
+  const resizeDirection = useRef<ShapeResizeDirections | null>(null);
 
   const setCursorStyles = useCallback(
     (mousePosition?: Coordinates, selectedShape?: StrokeHistory | null) => {
@@ -64,29 +74,182 @@ export const CanvasBoard = ({
       if (canvas) {
         switch (selectedTool) {
           case ToolTypes.PAN:
-            canvas.style.cursor = "move";
+            canvas.style.cursor = Cursors.MOVE;
             break;
 
           case ToolTypes.ERASER:
           case ToolTypes.FILL:
-            canvas.style.cursor = "none";
+            canvas.style.cursor = Cursors.NONE;
             break;
 
           case ToolTypes.SELECT:
-            if (
-              mousePosition &&
-              selectedShape &&
-              isCoordOnShape(mousePosition, selectedShape)
-            ) {
-              if (isMoving.current) canvas.style.cursor = "grabbing";
-              else canvas.style.cursor = "grab";
-            } else if (!isMoving.current) {
-              canvas.style.cursor = "default";
+            if (!mousePosition || !selectedShape) {
+              if (!isMoving.current && !isResizing.current) {
+                canvas.style.cursor = Cursors.DEFAULT;
+              }
+              return;
+            }
+
+            if (isMoving.current) {
+              canvas.style.cursor = Cursors.GRABBING;
+              return;
+            }
+
+            if (isResizing.current) {
+              return;
+            } else {
+              resizeDirection.current = null;
+            }
+
+            if (isCoordOnShape(mousePosition, selectedShape)) {
+              canvas.style.cursor = Cursors.GRAB;
+              return;
+            }
+
+            const { x, y } = mousePosition;
+            const from = borderFrom.current;
+            const to = borderTo.current;
+
+            if (from && to) {
+              const within = (val: number, min: number, max: number) =>
+                val >= min && val <= max;
+
+              const isLeftEdge =
+                within(
+                  x,
+                  from.x - SELECT_BOX_PADDING,
+                  from.x + SELECT_BOX_PADDING
+                ) &&
+                within(
+                  y,
+                  from.y + SELECT_BOX_PADDING,
+                  to.y - SELECT_BOX_PADDING
+                );
+
+              const isRightEdge =
+                within(
+                  x,
+                  to.x - SELECT_BOX_PADDING,
+                  to.x + SELECT_BOX_PADDING
+                ) &&
+                within(
+                  y,
+                  from.y + SELECT_BOX_PADDING,
+                  to.y - SELECT_BOX_PADDING
+                );
+
+              const isTopEdge =
+                within(
+                  y,
+                  from.y - SELECT_BOX_PADDING,
+                  from.y + SELECT_BOX_PADDING
+                ) &&
+                within(
+                  x,
+                  from.x + SELECT_BOX_PADDING,
+                  to.x - SELECT_BOX_PADDING
+                );
+
+              const isBottomEdge =
+                within(
+                  y,
+                  to.y - SELECT_BOX_PADDING,
+                  to.y + SELECT_BOX_PADDING
+                ) &&
+                within(
+                  x,
+                  from.x + SELECT_BOX_PADDING,
+                  to.x - SELECT_BOX_PADDING
+                );
+
+              const isTopLeftCorner =
+                within(
+                  x,
+                  from.x - SELECT_BOX_PADDING,
+                  from.x + SELECT_BOX_PADDING
+                ) &&
+                within(
+                  y,
+                  from.y - SELECT_BOX_PADDING,
+                  from.y + SELECT_BOX_PADDING
+                );
+
+              const isTopRightCorner =
+                within(
+                  x,
+                  to.x - SELECT_BOX_PADDING,
+                  to.x + SELECT_BOX_PADDING
+                ) &&
+                within(
+                  y,
+                  from.y - SELECT_BOX_PADDING,
+                  from.y + SELECT_BOX_PADDING
+                );
+
+              const isBottomLeftCorner =
+                within(
+                  x,
+                  from.x - SELECT_BOX_PADDING,
+                  from.x + SELECT_BOX_PADDING
+                ) &&
+                within(y, to.y - SELECT_BOX_PADDING, to.y + SELECT_BOX_PADDING);
+
+              const isBottomRightCorner =
+                within(
+                  x,
+                  to.x - SELECT_BOX_PADDING,
+                  to.x + SELECT_BOX_PADDING
+                ) &&
+                within(y, to.y - SELECT_BOX_PADDING, to.y + SELECT_BOX_PADDING);
+
+              if (isTopLeftCorner) {
+                canvas.style.cursor = Cursors.NWSE_RESIZE;
+                resizeDirection.current = ShapeResizeDirections.TOP_LEFT;
+              } else if (isBottomRightCorner) {
+                canvas.style.cursor = Cursors.NWSE_RESIZE;
+                resizeDirection.current = ShapeResizeDirections.BOTTOM_RIGHT;
+              } else if (isTopRightCorner) {
+                canvas.style.cursor = Cursors.NESW_RESIZE;
+                resizeDirection.current = ShapeResizeDirections.TOP_RIGHT;
+              } else if (isBottomLeftCorner) {
+                canvas.style.cursor = Cursors.NESW_RESIZE;
+                resizeDirection.current = ShapeResizeDirections.BOTTOM_LEFT;
+              } else if (
+                isLeftEdge &&
+                !SYMMETRICAL_SHAPES.includes(selectedShape.toolType)
+              ) {
+                canvas.style.cursor = Cursors.EW_RESIZE;
+                resizeDirection.current = ShapeResizeDirections.LEFT;
+              } else if (
+                isRightEdge &&
+                !SYMMETRICAL_SHAPES.includes(selectedShape.toolType)
+              ) {
+                canvas.style.cursor = Cursors.EW_RESIZE;
+                resizeDirection.current = ShapeResizeDirections.RIGHT;
+              } else if (
+                isTopEdge &&
+                !SYMMETRICAL_SHAPES.includes(selectedShape.toolType)
+              ) {
+                canvas.style.cursor = Cursors.NS_RESIZE;
+                resizeDirection.current = ShapeResizeDirections.TOP;
+              } else if (
+                isBottomEdge &&
+                !SYMMETRICAL_SHAPES.includes(selectedShape.toolType)
+              ) {
+                canvas.style.cursor = Cursors.NS_RESIZE;
+                resizeDirection.current = ShapeResizeDirections.BOTTOM;
+              } else {
+                canvas.style.cursor = Cursors.DEFAULT;
+                resizeDirection.current = null;
+              }
+            } else {
+              canvas.style.cursor = Cursors.DEFAULT;
+              resizeDirection.current = null;
             }
             break;
 
           default:
-            canvas.style.cursor = "crosshair";
+            canvas.style.cursor = Cursors.CROSSHAIR;
             break;
         }
       }
@@ -99,6 +262,9 @@ export const CanvasBoard = ({
     if (!canvas) return;
     const canvasContext = canvas.getContext("2d");
     if (!canvasContext) return;
+
+    borderFrom.current = null;
+    borderTo.current = null;
 
     if (selectedShape?.data[0]) {
       canvasContext.strokeStyle = Colors.BLACK;
@@ -118,8 +284,10 @@ export const CanvasBoard = ({
         Math.abs(selectedShape.data[0].to.y - selectedShape.data[0].from.y) +
         2 * SELECT_BOX_PADDING;
 
-      canvasContext.rect(x, y, width, height);
-      canvasContext.stroke();
+      borderFrom.current = { x, y };
+      borderTo.current = { x: x + width, y: y + height };
+
+      canvasContext.strokeRect(x, y, width, height);
     }
   }, [selectedShape]);
 
@@ -152,12 +320,13 @@ export const CanvasBoard = ({
 
       lastMouseCoords.current = { x, y };
       lastPanCoords.current = { ...panCoords.current };
-    } else if (
-      selectedTool === ToolTypes.SELECT &&
-      selectedShape &&
-      isCoordOnShape(currentMouseCoords, selectedShape)
-    ) {
-      isMoving.current = true;
+    } else if (selectedTool === ToolTypes.SELECT && selectedShape) {
+      if (isCoordOnShape(currentMouseCoords, selectedShape)) {
+        isMoving.current = true;
+      } else if (resizeDirection.current !== null) {
+        isResizing.current = true;
+      }
+
       lastMouseCoords.current = currentMouseCoords;
       setCursorStyles(currentMouseCoords, selectedShape);
     } else if (
@@ -182,7 +351,13 @@ export const CanvasBoard = ({
 
     setCursorStyles(currentMouseCoords, selectedShape);
 
-    if (!isDragging.current && !isDrawing.current && !isMoving.current) return;
+    if (
+      !isDragging.current &&
+      !isDrawing.current &&
+      !isMoving.current &&
+      !isResizing.current
+    )
+      return;
 
     switch (selectedTool) {
       case ToolTypes.PAN:
@@ -210,24 +385,197 @@ export const CanvasBoard = ({
         if (selectedShape) {
           const dx = currentMouseCoords.x - lastMouseCoords.current.x;
           const dy = currentMouseCoords.y - lastMouseCoords.current.y;
+          const { x: xFrom, y: yFrom } = selectedShape.data[0].from;
+          const { x: xTo, y: yTo } = selectedShape.data[0].to;
 
-          shapeFrom.current = {
-            x: selectedShape.data[0].from.x + dx,
-            y: selectedShape.data[0].from.y + dy,
-          };
+          if (isMoving.current) {
+            shapeFrom.current = {
+              x: xFrom + dx,
+              y: yFrom + dy,
+            };
 
-          shapeTo.current = {
-            x: selectedShape.data[0].to.x + dx,
-            y: selectedShape.data[0].to.y + dy,
-          };
+            shapeTo.current = {
+              x: xTo + dx,
+              y: yTo + dy,
+            };
+          } else if (isResizing.current) {
+            shapeFrom.current = {
+              x: xFrom,
+              y: yFrom,
+            };
 
-          setupCanvas(canvasRef.current, panCoords.current, zoom.current, [
-            ...history.filter((shape) => selectedShape.id !== shape.id),
-            {
-              ...selectedShape,
-              data: [{ from: shapeFrom.current, to: shapeTo.current }],
-            },
-          ]);
+            shapeTo.current = {
+              x: xTo,
+              y: yTo,
+            };
+
+            if (SYMMETRICAL_SHAPES.includes(selectedShape.toolType)) {
+              switch (resizeDirection.current) {
+                case ShapeResizeDirections.TOP_RIGHT:
+                  if (shapeTo.current.y > shapeFrom.current.y) {
+                    shapeFrom.current.y += dy;
+                  } else {
+                    shapeTo.current.y += dy;
+                  }
+                  if (shapeTo.current.x > shapeFrom.current.x) {
+                    shapeTo.current.x += dx;
+                  } else {
+                    shapeFrom.current.x += dx;
+                  }
+                  break;
+
+                case ShapeResizeDirections.TOP_LEFT:
+                  if (shapeTo.current.y > shapeFrom.current.y) {
+                    shapeFrom.current.y += dy;
+                  } else {
+                    shapeTo.current.y += dy;
+                  }
+                  if (shapeTo.current.x > shapeFrom.current.x) {
+                    shapeFrom.current.x += dx;
+                  } else {
+                    shapeTo.current.x += dx;
+                  }
+                  break;
+
+                case ShapeResizeDirections.BOTTOM_RIGHT:
+                  if (shapeTo.current.y > shapeFrom.current.y) {
+                    shapeTo.current.y += dy;
+                  } else {
+                    shapeFrom.current.y += dy;
+                  }
+                  if (shapeTo.current.x > shapeFrom.current.x) {
+                    shapeTo.current.x += dx;
+                  } else {
+                    shapeFrom.current.x += dx;
+                  }
+                  break;
+
+                case ShapeResizeDirections.BOTTOM_LEFT:
+                  if (shapeTo.current.y > shapeFrom.current.y) {
+                    shapeTo.current.y += dy;
+                  } else {
+                    shapeFrom.current.y += dy;
+                  }
+                  if (shapeTo.current.x > shapeFrom.current.x) {
+                    shapeFrom.current.x += dx;
+                  } else {
+                    shapeTo.current.x += dx;
+                  }
+              }
+            } else {
+              switch (resizeDirection.current) {
+                case ShapeResizeDirections.TOP:
+                  if (shapeTo.current.y > shapeFrom.current.y) {
+                    shapeFrom.current.y += dy;
+                  } else {
+                    shapeTo.current.y += dy;
+                  }
+                  break;
+
+                case ShapeResizeDirections.BOTTOM:
+                  if (shapeTo.current.y > shapeFrom.current.y) {
+                    shapeTo.current.y += dy;
+                  } else {
+                    shapeFrom.current.y += dy;
+                  }
+                  break;
+
+                case ShapeResizeDirections.RIGHT:
+                  if (shapeTo.current.x > shapeFrom.current.x) {
+                    shapeTo.current.x += dx;
+                  } else {
+                    shapeFrom.current.x += dx;
+                  }
+                  break;
+
+                case ShapeResizeDirections.LEFT:
+                  if (shapeTo.current.x > shapeFrom.current.x) {
+                    shapeFrom.current.x += dx;
+                  } else {
+                    shapeTo.current.x += dx;
+                  }
+                  break;
+
+                case ShapeResizeDirections.TOP_RIGHT:
+                  if (shapeTo.current.y > shapeFrom.current.y) {
+                    shapeFrom.current.y += dy;
+                  } else {
+                    shapeTo.current.y += dy;
+                  }
+                  if (shapeTo.current.x > shapeFrom.current.x) {
+                    shapeTo.current.x += dx;
+                  } else {
+                    shapeFrom.current.x += dx;
+                  }
+                  break;
+
+                case ShapeResizeDirections.TOP_LEFT:
+                  if (shapeTo.current.y > shapeFrom.current.y) {
+                    shapeFrom.current.y += dy;
+                  } else {
+                    shapeTo.current.y += dy;
+                  }
+                  if (shapeTo.current.x > shapeFrom.current.x) {
+                    shapeFrom.current.x += dx;
+                  } else {
+                    shapeTo.current.x += dx;
+                  }
+                  break;
+
+                case ShapeResizeDirections.BOTTOM_RIGHT:
+                  if (shapeTo.current.y > shapeFrom.current.y) {
+                    shapeTo.current.y += dy;
+                  } else {
+                    shapeFrom.current.y += dy;
+                  }
+                  if (shapeTo.current.x > shapeFrom.current.x) {
+                    shapeTo.current.x += dx;
+                  } else {
+                    shapeFrom.current.x += dx;
+                  }
+                  break;
+
+                case ShapeResizeDirections.BOTTOM_LEFT:
+                  if (shapeTo.current.y > shapeFrom.current.y) {
+                    shapeTo.current.y += dy;
+                  } else {
+                    shapeFrom.current.y += dy;
+                  }
+                  if (shapeTo.current.x > shapeFrom.current.x) {
+                    shapeFrom.current.x += dx;
+                  } else {
+                    shapeTo.current.x += dx;
+                  }
+                  break;
+
+                default:
+                  break;
+              }
+            }
+          }
+
+          if (shapeFrom.current && shapeTo.current) {
+            setupCanvas(
+              canvasRef.current,
+              panCoords.current,
+              zoom.current,
+              history.filter((shape) => selectedShape.id !== shape.id)
+            );
+
+            const shapeEndPoint = drawOnCanvas(
+              shapeFrom.current,
+              shapeTo.current,
+              canvas,
+              selectedShape.toolType,
+              selectedShape.strokeColor,
+              selectedShape.fillColor,
+              selectedShape.strokeSize
+            );
+
+            if (shapeEndPoint) {
+              shapeTo.current = shapeEndPoint;
+            }
+          }
         }
         break;
 
@@ -314,15 +662,17 @@ export const CanvasBoard = ({
           strokeHistorySlice = {
             ...clickedElement,
             fillColor,
-            data: JSON.parse(JSON.stringify(clickedElement.data)),
+            data: structuredClone(clickedElement.data),
           };
         }
         break;
       }
 
       case ToolTypes.SELECT: {
-        if (isMoving.current) {
+        if (isMoving.current || isResizing.current) {
           isMoving.current = false;
+          isResizing.current = false;
+          resizeDirection.current = null;
 
           if (selectedShape && shapeFrom.current && shapeTo.current) {
             strokeHistorySlice = {
@@ -351,7 +701,7 @@ export const CanvasBoard = ({
             payload: clickedShape ?? null,
           });
         }
-        
+
         break;
       }
 
@@ -406,7 +756,10 @@ export const CanvasBoard = ({
 
   useEffect(() => {
     setupCanvas(canvasRef.current, panCoords.current, zoom.current, history);
+  }, [history, redoHistory]);
 
+  useEffect(() => {
+    setupCanvas(canvasRef.current, panCoords.current, zoom.current, history);
     drawBorderAroundShape();
   }, [history, redoHistory, drawBorderAroundShape]);
 
