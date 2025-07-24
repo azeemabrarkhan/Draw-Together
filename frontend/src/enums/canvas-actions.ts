@@ -7,4 +7,6 @@ export enum CanvasActions {
   IMPORT = "Import",
   ZOOM_IN = "Zoom In",
   ZOOM_OUT = "Zoom Out",
+  MOVE_FORWARD = "Move Forward",
+  MOVE_BACKWARD = "Move Backward",
 }
