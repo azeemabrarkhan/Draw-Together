@@ -15,6 +15,20 @@ const INTERACTABLE_SHAPES = [
   ToolTypes.LINE,
 ];
 
+export const getNormalizedEndPointForSymmetricalShapes = (
+  from: Coordinates,
+  to: Coordinates
+) => {
+  const width = to.x - from.x;
+  const height = to.y - from.y;
+  const size = Math.min(Math.abs(width), Math.abs(height));
+
+  return {
+    x: to.x < from.x ? from.x - size : from.x + size,
+    y: to.y < from.y ? from.y - size : from.y + size,
+  };
+};
+
 export const setupCanvas = (
   canvas: HTMLCanvasElement | null,
   panCoords: Coordinates,
@@ -148,7 +162,6 @@ export const drawOnCanvas = (
 
   const width = to.x - from.x;
   const height = to.y - from.y;
-  let shapeTo: Coordinates = { ...to };
 
   canvasContext.strokeStyle = strokeColor;
   canvasContext.fillStyle = fillColor;
@@ -187,11 +200,6 @@ export const drawOnCanvas = (
         0,
         Math.PI * 2
       );
-
-      shapeTo = {
-        x: to.x < from.x ? from.x - diameter : from.x + diameter,
-        y: to.y < from.y ? from.y - diameter : from.y + diameter,
-      };
       break;
 
     case ToolTypes.SQUARE:
@@ -202,10 +210,6 @@ export const drawOnCanvas = (
         width < 0 ? -size : size,
         height < 0 ? -size : size
       );
-      shapeTo = {
-        x: to.x < from.x ? from.x - size : from.x + size,
-        y: to.y < from.y ? from.y - size : from.y + size,
-      };
       break;
 
     case ToolTypes.RECTANGLE:
@@ -245,6 +249,4 @@ export const drawOnCanvas = (
   }
   canvasContext.fill();
   canvasContext.stroke();
-
-  return shapeTo;
 };

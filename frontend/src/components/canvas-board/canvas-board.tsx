@@ -17,6 +17,7 @@ import {
   setupCanvas,
   getShapeAtPosition,
   isCoordOnShape,
+  getNormalizedEndPointForSymmetricalShapes,
 } from "../../utils/canvas";
 
 import styles from "./styles.module.css";
@@ -462,6 +463,11 @@ export const CanvasBoard = ({
                     shapeTo.current.x += dx;
                   }
               }
+
+              shapeTo.current = getNormalizedEndPointForSymmetricalShapes(
+                shapeFrom.current,
+                shapeTo.current
+              );
             } else {
               switch (resizeDirection.current) {
                 case ShapeResizeDirections.TOP:
@@ -555,26 +561,13 @@ export const CanvasBoard = ({
           }
 
           if (shapeFrom.current && shapeTo.current) {
-            setupCanvas(
-              canvasRef.current,
-              panCoords.current,
-              zoom.current,
-              history.filter((shape) => selectedShape.id !== shape.id)
-            );
-
-            const shapeEndPoint = drawOnCanvas(
-              shapeFrom.current,
-              shapeTo.current,
-              canvas,
-              selectedShape.toolType,
-              selectedShape.strokeColor,
-              selectedShape.fillColor,
-              selectedShape.strokeSize
-            );
-
-            if (shapeEndPoint) {
-              shapeTo.current = shapeEndPoint;
-            }
+            setupCanvas(canvasRef.current, panCoords.current, zoom.current, [
+              ...history.filter((shape) => selectedShape.id !== shape.id),
+              {
+                ...selectedShape,
+                data: [{ from: shapeFrom.current, to: shapeTo.current }],
+              },
+            ]);
           }
         }
         break;
@@ -612,7 +605,7 @@ export const CanvasBoard = ({
           history
         );
 
-        const shapeEndPoint = drawOnCanvas(
+        drawOnCanvas(
           lastMouseCoords.current,
           currentMouseCoords,
           canvas,
@@ -622,9 +615,10 @@ export const CanvasBoard = ({
           strokeSize
         );
 
-        if (shapeEndPoint) {
-          shapeTo.current = shapeEndPoint;
-        }
+        shapeTo.current = getNormalizedEndPointForSymmetricalShapes(
+          lastMouseCoords.current,
+          currentMouseCoords
+        );
         break;
     }
   };
