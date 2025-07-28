@@ -33,6 +33,8 @@ const BUTTONS_TO_RENDER = [
   ToolTypes.SELECT,
   CanvasActions.MOVE_FORWARD,
   CanvasActions.MOVE_BACKWARD,
+  CanvasActions.COPY,
+  CanvasActions.DELETE,
   ToolTypes.DRAW,
   ToolTypes.ERASER,
   ToolTypes.LINE,
@@ -235,6 +237,8 @@ export const ToolBar = ({
 
       case CanvasActions.MOVE_BACKWARD:
       case CanvasActions.MOVE_FORWARD:
+      case CanvasActions.COPY:
+      case CanvasActions.DELETE:
         return selectedShape === null;
     }
   };
