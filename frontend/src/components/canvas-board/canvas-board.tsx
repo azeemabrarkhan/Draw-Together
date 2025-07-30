@@ -18,6 +18,10 @@ import {
   getShapeAtPosition,
   isCoordOnShape,
   getNormalizedEndPointForSymmetricalShapes,
+  getMinX,
+  getHeight,
+  getWidth,
+  getMinY,
 } from "../../utils/canvas";
 
 import styles from "./styles.module.css";
@@ -68,6 +72,25 @@ export const CanvasBoard = ({
   const borderTo = useRef<Coordinates | null>(null);
   const strokesData = useRef<CoordinatesData[]>([]);
   const resizeDirection = useRef<ShapeResizeDirections | null>(null);
+
+  const dispatchAddToHistoryAction = useCallback(
+    (shape: StrokeHistory) => {
+      if (shape.data.length === 0) return;
+
+      setCanvasConfig({
+        type: HomeStateActionTypes.ADD_HISTORY,
+        payload: shape,
+      });
+
+      if (
+        selectedTool !== ToolTypes.FILL &&
+        selectedTool !== ToolTypes.SELECT
+      ) {
+        zIndex.current += 1;
+      }
+    },
+    [selectedTool]
+  );
 
   const setCursorStyles = useCallback(
     (mousePosition?: Coordinates, selectedShape?: StrokeHistory | null) => {
@@ -272,18 +295,10 @@ export const CanvasBoard = ({
       canvasContext.lineWidth = SELECT_BORDER_LINE_WIDTH;
       canvasContext.setLineDash(SELECT_BORDER_LINE_DASH);
 
-      const x =
-        Math.min(selectedShape.data[0].from.x, selectedShape.data[0].to.x) -
-        SELECT_BOX_PADDING;
-      const y =
-        Math.min(selectedShape.data[0].from.y, selectedShape.data[0].to.y) -
-        SELECT_BOX_PADDING;
-      const width =
-        Math.abs(selectedShape.data[0].to.x - selectedShape.data[0].from.x) +
-        2 * SELECT_BOX_PADDING;
-      const height =
-        Math.abs(selectedShape.data[0].to.y - selectedShape.data[0].from.y) +
-        2 * SELECT_BOX_PADDING;
+      const x = getMinX(selectedShape) - SELECT_BOX_PADDING;
+      const y = getMinY(selectedShape) - SELECT_BOX_PADDING;
+      const width = getWidth(selectedShape) + 2 * SELECT_BOX_PADDING;
+      const height = getHeight(selectedShape) + 2 * SELECT_BOX_PADDING;
 
       borderFrom.current = { x, y };
       borderTo.current = { x: x + width, y: y + height };
@@ -306,7 +321,7 @@ export const CanvasBoard = ({
     if (!canvas) return;
 
     const currentMouseCoords = getCanvasMouseCoords(
-      e,
+      { x: e.clientX, y: e.clientY },
       canvas,
       panCoords.current,
       zoom.current
@@ -344,7 +359,7 @@ export const CanvasBoard = ({
     if (!canvas) return;
 
     const currentMouseCoords = getCanvasMouseCoords(
-      e,
+      { x: e.clientX, y: e.clientY },
       canvas,
       panCoords.current,
       zoom.current
@@ -633,7 +648,7 @@ export const CanvasBoard = ({
     if (!canvas) return;
 
     const currentMouseCoords = getCanvasMouseCoords(
-      e,
+      { x: e.clientX, y: e.clientY },
       canvas,
       panCoords.current,
       zoom.current
@@ -724,16 +739,7 @@ export const CanvasBoard = ({
         break;
     }
 
-    if (strokeHistorySlice.data.length > 0) {
-      setCanvasConfig({
-        type: HomeStateActionTypes.ADD_HISTORY,
-        payload: strokeHistorySlice,
-      });
-
-      if (selectedTool !== ToolTypes.FILL) {
-        zIndex.current += 1;
-      }
-    }
+    dispatchAddToHistoryAction(strokeHistorySlice);
 
     isDragging.current = false;
     isDrawing.current = false;

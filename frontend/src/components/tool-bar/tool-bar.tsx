@@ -1,11 +1,15 @@
 import { useState } from "react";
+import { nanoid } from "nanoid";
 import { Button, ColorInput } from "../";
 import { ZOOM_STEP, type HomeStateAction } from "../../pages";
 import type { Coordinates, StrokeHistory } from "../../models";
 import {
   downloadFile,
   downloadObjAsEncodedFile,
+  getCanvasMouseCoords,
   getCurrentTimeStamp,
+  getHeight,
+  getWidth,
   setupCanvas,
 } from "../../utils";
 import {
@@ -19,6 +23,7 @@ import styles from "./styles.module.css";
 
 const STROKE_SIZES = [2, 4, 6, 8, 10];
 const STROKE_SIZE_BUTTON_ICON = `url("/icons/Stroke Size.png")`;
+const COPIED_SHAPE_FROM_SCREEN_COORDINATES = { x: 15, y: 125 };
 
 const BUTTONS_TO_RENDER = [
   CanvasActions.NEW,
@@ -211,7 +216,34 @@ export const ToolBar = ({
             payload: shapeWithUpdateIndex,
           });
         }
+        break;
 
+      case CanvasActions.COPY:
+        if (selectedShape && canvasRef.current) {
+          const width = getWidth(selectedShape);
+          const heigt = getHeight(selectedShape);
+          const from = getCanvasMouseCoords(
+            COPIED_SHAPE_FROM_SCREEN_COORDINATES,
+            canvasRef.current,
+            panCoords.current,
+            zoom.current
+          );
+
+          const selectedShapeCopy = structuredClone(selectedShape);
+          selectedShapeCopy.id = nanoid();
+          selectedShapeCopy.data[0] = {
+            from,
+            to: {
+              x: from.x + width,
+              y: from.y + heigt,
+            },
+          };
+
+          setCanvasConfig({
+            type: HomeStateActionTypes.ADD_HISTORY,
+            payload: selectedShapeCopy,
+          });
+        }
         break;
 
       default:

@@ -15,6 +15,18 @@ const INTERACTABLE_SHAPES = [
   ToolTypes.LINE,
 ];
 
+export const getMinX = (shape: StrokeHistory) =>
+  Math.min(shape.data[0].from.x, shape.data[0].to.x);
+
+export const getMinY = (shape: StrokeHistory) =>
+  Math.min(shape.data[0].from.y, shape.data[0].to.y);
+
+export const getWidth = (shape: StrokeHistory) =>
+  Math.abs(shape.data[0].to.x - shape.data[0].from.x);
+
+export const getHeight = (shape: StrokeHistory) =>
+  Math.abs(shape.data[0].to.y - shape.data[0].from.y);
+
 export const getNormalizedEndPointForSymmetricalShapes = (
   from: Coordinates,
   to: Coordinates
@@ -93,15 +105,15 @@ export const drawHistory = (
 };
 
 export const getCanvasMouseCoords = (
-  e: React.MouseEvent<HTMLCanvasElement>,
+  screenCoords: Coordinates,
   canvas: HTMLCanvasElement,
   pan: Coordinates,
   zoom: number
 ) => {
   const rect = canvas?.getBoundingClientRect();
 
-  const rawX = e.clientX - rect.left;
-  const rawY = e.clientY - rect.top;
+  const rawX = screenCoords.x - rect.left;
+  const rawY = screenCoords.y - rect.top;
 
   return {
     x: (rawX - pan.x) / zoom,
@@ -170,6 +182,7 @@ export const drawOnCanvas = (
 
   switch (toolType) {
     case ToolTypes.DRAW:
+    case ToolTypes.LINE:
       canvasContext.moveTo(from.x, from.y);
       canvasContext.lineTo(to.x, to.y);
       break;
@@ -182,11 +195,6 @@ export const drawOnCanvas = (
         ERASER_SIZE
       );
 
-      break;
-
-    case ToolTypes.LINE:
-      canvasContext.moveTo(from.x, from.y);
-      canvasContext.lineTo(to.x, to.y);
       break;
 
     case ToolTypes.CIRCLE:
