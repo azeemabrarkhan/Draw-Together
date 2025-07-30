@@ -9,4 +9,6 @@ export enum CanvasActions {
   ZOOM_OUT = "Zoom Out",
   MOVE_FORWARD = "Move Forward",
   MOVE_BACKWARD = "Move Backward",
+  DELETE = "Delete",
+  COPY = "Copy",
 }

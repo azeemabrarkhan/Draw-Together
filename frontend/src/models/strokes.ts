@@ -14,4 +14,5 @@ export type StrokeHistory = {
   strokeSize: number;
   zIndex: number;
   data: CoordinatesData[];
+  isDisabled: boolean;
 };

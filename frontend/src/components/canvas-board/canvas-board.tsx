@@ -18,6 +18,11 @@ import {
   getShapeAtPosition,
   isCoordOnShape,
   getNormalizedEndPointForSymmetricalShapes,
+  getMinX,
+  getHeight,
+  getWidth,
+  getMinY,
+  getCoordsFromTouchEvent,
 } from "../../utils/canvas";
 
 import styles from "./styles.module.css";
@@ -68,6 +73,25 @@ export const CanvasBoard = ({
   const borderTo = useRef<Coordinates | null>(null);
   const strokesData = useRef<CoordinatesData[]>([]);
   const resizeDirection = useRef<ShapeResizeDirections | null>(null);
+
+  const dispatchAddToHistoryAction = useCallback(
+    (shape: StrokeHistory) => {
+      if (shape.data.length === 0) return;
+
+      setCanvasConfig({
+        type: HomeStateActionTypes.ADD_HISTORY,
+        payload: shape,
+      });
+
+      if (
+        selectedTool !== ToolTypes.FILL &&
+        selectedTool !== ToolTypes.SELECT
+      ) {
+        zIndex.current += 1;
+      }
+    },
+    [selectedTool]
+  );
 
   const setCursorStyles = useCallback(
     (mousePosition?: Coordinates, selectedShape?: StrokeHistory | null) => {
@@ -272,18 +296,10 @@ export const CanvasBoard = ({
       canvasContext.lineWidth = SELECT_BORDER_LINE_WIDTH;
       canvasContext.setLineDash(SELECT_BORDER_LINE_DASH);
 
-      const x =
-        Math.min(selectedShape.data[0].from.x, selectedShape.data[0].to.x) -
-        SELECT_BOX_PADDING;
-      const y =
-        Math.min(selectedShape.data[0].from.y, selectedShape.data[0].to.y) -
-        SELECT_BOX_PADDING;
-      const width =
-        Math.abs(selectedShape.data[0].to.x - selectedShape.data[0].from.x) +
-        2 * SELECT_BOX_PADDING;
-      const height =
-        Math.abs(selectedShape.data[0].to.y - selectedShape.data[0].from.y) +
-        2 * SELECT_BOX_PADDING;
+      const x = getMinX(selectedShape) - SELECT_BOX_PADDING;
+      const y = getMinY(selectedShape) - SELECT_BOX_PADDING;
+      const width = getWidth(selectedShape) + 2 * SELECT_BOX_PADDING;
+      const height = getHeight(selectedShape) + 2 * SELECT_BOX_PADDING;
 
       borderFrom.current = { x, y };
       borderTo.current = { x: x + width, y: y + height };
@@ -301,12 +317,12 @@ export const CanvasBoard = ({
     });
   };
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const handleMouseDown = (coords: Coordinates) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const currentMouseCoords = getCanvasMouseCoords(
-      e,
+      coords,
       canvas,
       panCoords.current,
       zoom.current
@@ -316,8 +332,8 @@ export const CanvasBoard = ({
       isDragging.current = true;
 
       const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+      const x = coords.x - rect.left;
+      const y = coords.y - rect.top;
 
       lastMouseCoords.current = { x, y };
       lastPanCoords.current = { ...panCoords.current };
@@ -339,12 +355,12 @@ export const CanvasBoard = ({
     }
   };
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const handleMouseMove = (coords: Coordinates) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const currentMouseCoords = getCanvasMouseCoords(
-      e,
+      coords,
       canvas,
       panCoords.current,
       zoom.current
@@ -363,8 +379,8 @@ export const CanvasBoard = ({
     switch (selectedTool) {
       case ToolTypes.PAN:
         const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        const x = coords.x - rect.left;
+        const y = coords.y - rect.top;
 
         const dx = x - lastMouseCoords.current.x;
         const dy = y - lastMouseCoords.current.y;
@@ -628,12 +644,12 @@ export const CanvasBoard = ({
     }
   };
 
-  const handleMouseUp = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const handleMouseUp = (coords: Coordinates) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const currentMouseCoords = getCanvasMouseCoords(
-      e,
+      coords,
       canvas,
       panCoords.current,
       zoom.current
@@ -647,6 +663,7 @@ export const CanvasBoard = ({
       strokeSize,
       zIndex: zIndex.current,
       data: [],
+      isDisabled: false,
     };
 
     switch (selectedTool) {
@@ -724,16 +741,7 @@ export const CanvasBoard = ({
         break;
     }
 
-    if (strokeHistorySlice.data.length > 0) {
-      setCanvasConfig({
-        type: HomeStateActionTypes.ADD_HISTORY,
-        payload: strokeHistorySlice,
-      });
-
-      if (selectedTool !== ToolTypes.FILL) {
-        zIndex.current += 1;
-      }
-    }
+    dispatchAddToHistoryAction(strokeHistorySlice);
 
     isDragging.current = false;
     isDrawing.current = false;
@@ -744,6 +752,30 @@ export const CanvasBoard = ({
     strokesData.current = [];
   };
 
+  const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    const coords = getCoordsFromTouchEvent(e);
+
+    if (coords) {
+      handleMouseDown(coords);
+    }
+  };
+
+  const handleTouchmove = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    const coords = getCoordsFromTouchEvent(e);
+
+    if (coords) {
+      handleMouseMove(coords);
+    }
+  };
+
+  const handleTouchend = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    const coords = getCoordsFromTouchEvent(e);
+
+    if (coords) {
+      handleMouseUp(coords);
+    }
+  };
+
   useEffect(() => {
     const handleResize = () => {
       setupCanvas(canvasRef.current, panCoords.current, zoom.current, history);
@@ -751,7 +783,7 @@ export const CanvasBoard = ({
     window.addEventListener("resize", handleResize);
 
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [history]);
 
   useEffect(() => {
     setupCanvas(canvasRef.current, panCoords.current, zoom.current, history);
@@ -781,14 +813,41 @@ export const CanvasBoard = ({
     setupCanvas(canvasRef.current, panCoords.current, zoom.current, history);
   }, [zoom.current]);
 
+  useEffect(() => {
+    if (!selectedShape) return;
+
+    const selectedShapeCopy = structuredClone(selectedShape);
+    selectedShapeCopy.strokeColor = strokeColor;
+    dispatchAddToHistoryAction(selectedShapeCopy);
+  }, [strokeColor, dispatchAddToHistoryAction]);
+
+  useEffect(() => {
+    if (!selectedShape) return;
+
+    const selectedShapeCopy = structuredClone(selectedShape);
+    selectedShapeCopy.fillColor = fillColor;
+    dispatchAddToHistoryAction(selectedShapeCopy);
+  }, [fillColor, dispatchAddToHistoryAction]);
+
+  useEffect(() => {
+    if (!selectedShape) return;
+
+    const selectedShapeCopy = structuredClone(selectedShape);
+    selectedShapeCopy.strokeSize = strokeSize;
+    dispatchAddToHistoryAction(selectedShapeCopy);
+  }, [strokeSize, dispatchAddToHistoryAction]);
+
   return (
     <>
       <canvas
         className={styles.canvas}
         ref={canvasRef}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
+        onMouseDown={(e) => handleMouseDown({ x: e.clientX, y: e.clientY })}
+        onMouseMove={(e) => handleMouseMove({ x: e.clientX, y: e.clientY })}
+        onMouseUp={(e) => handleMouseUp({ x: e.clientX, y: e.clientY })}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchmove}
+        onTouchEnd={handleTouchend}
         onWheel={handleZoom}
       />
       <CanvasOverlay

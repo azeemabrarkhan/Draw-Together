@@ -7,8 +7,8 @@ import { uploadFile, isStrokeHistoryArray } from "../../utils";
 
 import styles from "./styles.module.css";
 
-const MIN_ZOOM = 0.5;
-const MAX_ZOOM = 5;
+export const MIN_ZOOM = 0.5;
+export const MAX_ZOOM = 5;
 export const ZOOM_STEP = 0.5;
 const DEFAULT_ZOOM = 1;
 
@@ -24,38 +24,50 @@ type HomeStateType = {
   selectedShape: StrokeHistory | null;
 };
 
-export type HomeStateAction = {
-  type: HomeStateActionTypes;
-  payload?:
-    | number
-    | boolean
-    | string
-    | ToolTypes
-    | StrokeHistory
-    | StrokeHistory[]
-    | null;
-};
+export type HomeStateAction =
+  | { type: HomeStateActionTypes.SET_IS_IMPORTING; payload: boolean }
+  | { type: HomeStateActionTypes.SET_STROKE_COLOR; payload: string }
+  | { type: HomeStateActionTypes.SET_FILL_COLOR; payload: string }
+  | { type: HomeStateActionTypes.SET_HISTORY; payload: StrokeHistory[] }
+  | { type: HomeStateActionTypes.ADD_HISTORY; payload: StrokeHistory }
+  | { type: HomeStateActionTypes.UNDO }
+  | { type: HomeStateActionTypes.REDO }
+  | { type: HomeStateActionTypes.SET_TOOL; payload: ToolTypes }
+  | { type: HomeStateActionTypes.SET_STROKE_SIZE; payload: number }
+  | { type: HomeStateActionTypes.SET_ZOOM; payload: number }
+  | {
+      type: HomeStateActionTypes.SET_SELECTED_SHAPE;
+      payload: StrokeHistory | null;
+    };
 
-const homeStateReducer = (state: HomeStateType, action: HomeStateAction) => {
+const homeStateReducer = (
+  state: HomeStateType,
+  action: HomeStateAction
+): HomeStateType => {
   switch (action.type) {
     case HomeStateActionTypes.SET_IS_IMPORTING:
-      return { ...state, isImporting: action.payload as boolean };
+      return { ...state, isImporting: action.payload };
+
     case HomeStateActionTypes.SET_STROKE_COLOR:
-      return { ...state, strokeColor: action.payload as string };
+      return { ...state, strokeColor: action.payload };
+
     case HomeStateActionTypes.SET_FILL_COLOR:
-      return { ...state, fillColor: action.payload as string };
+      return { ...state, fillColor: action.payload };
+
     case HomeStateActionTypes.SET_HISTORY:
       return {
         ...state,
         redoHistory: [],
-        history: action.payload as StrokeHistory[],
+        history: action.payload,
         selectedShape: null,
       };
+
     case HomeStateActionTypes.ADD_HISTORY:
       return {
         ...state,
-        history: state.history.concat(action.payload as StrokeHistory),
+        history: state.history.concat(action.payload),
       };
+
     case HomeStateActionTypes.UNDO: {
       const historyCopy = [...state.history];
       const lastHistoryItem = historyCopy.pop();
@@ -70,6 +82,7 @@ const homeStateReducer = (state: HomeStateType, action: HomeStateAction) => {
         selectedShape: null,
       };
     }
+
     case HomeStateActionTypes.REDO: {
       const redoHistoryCopy = [...state.redoHistory];
       const lastRedoHistoryItem = redoHistoryCopy.pop();
@@ -83,31 +96,34 @@ const homeStateReducer = (state: HomeStateType, action: HomeStateAction) => {
         selectedShape: null,
       };
     }
+
     case HomeStateActionTypes.SET_TOOL:
       return {
         ...state,
-        selectedTool: action.payload as ToolTypes,
+        selectedTool: action.payload,
         selectedShape: null,
       };
+
     case HomeStateActionTypes.SET_STROKE_SIZE:
-      return { ...state, strokeSize: action.payload as number };
+      return { ...state, strokeSize: action.payload };
+
     case HomeStateActionTypes.SET_ZOOM:
-      if (
-        (action.payload as number) < MIN_ZOOM ||
-        (action.payload as number) > MAX_ZOOM
-      )
-        return state;
+      if (action.payload < MIN_ZOOM || action.payload > MAX_ZOOM) return state;
       else
         return {
           ...state,
-          zoom: { current: action.payload as number, last: state.zoom.current },
+          zoom: { current: action.payload, last: state.zoom.current },
           selectedShape: null,
         };
+
     case HomeStateActionTypes.SET_SELECTED_SHAPE:
       return {
         ...state,
-        selectedShape: action.payload as StrokeHistory | null,
+        selectedShape: action.payload,
       };
+
+    default:
+      return state;
   }
 };
 

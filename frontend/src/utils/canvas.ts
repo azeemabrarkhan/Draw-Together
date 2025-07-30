@@ -15,6 +15,18 @@ const INTERACTABLE_SHAPES = [
   ToolTypes.LINE,
 ];
 
+export const getMinX = (shape: StrokeHistory) =>
+  Math.min(shape.data[0].from.x, shape.data[0].to.x);
+
+export const getMinY = (shape: StrokeHistory) =>
+  Math.min(shape.data[0].from.y, shape.data[0].to.y);
+
+export const getWidth = (shape: StrokeHistory) =>
+  Math.abs(shape.data[0].to.x - shape.data[0].from.x);
+
+export const getHeight = (shape: StrokeHistory) =>
+  Math.abs(shape.data[0].to.y - shape.data[0].from.y);
+
 export const getNormalizedEndPointForSymmetricalShapes = (
   from: Coordinates,
   to: Coordinates
@@ -27,6 +39,18 @@ export const getNormalizedEndPointForSymmetricalShapes = (
     x: to.x < from.x ? from.x - size : from.x + size,
     y: to.y < from.y ? from.y - size : from.y + size,
   };
+};
+
+export const getCoordsFromTouchEvent = (
+  e: React.TouchEvent<HTMLCanvasElement>
+): Coordinates | null => {
+  if (e.touches && e.touches.length > 0) {
+    return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  } else if (e.changedTouches && e.changedTouches.length > 0) {
+    return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+  } else {
+    return null;
+  }
 };
 
 export const setupCanvas = (
@@ -68,7 +92,9 @@ export const getShapesToRender = (
     }
   });
 
-  return Array.from(shapesMap.values()).sort((a, b) => a.zIndex - b.zIndex);
+  return Array.from(shapesMap.values())
+    .filter((shape) => !shape.isDisabled)
+    .sort((a, b) => a.zIndex - b.zIndex);
 };
 
 export const drawHistory = (
@@ -93,15 +119,15 @@ export const drawHistory = (
 };
 
 export const getCanvasMouseCoords = (
-  e: React.MouseEvent<HTMLCanvasElement>,
+  screenCoords: Coordinates,
   canvas: HTMLCanvasElement,
   pan: Coordinates,
   zoom: number
 ) => {
   const rect = canvas?.getBoundingClientRect();
 
-  const rawX = e.clientX - rect.left;
-  const rawY = e.clientY - rect.top;
+  const rawX = screenCoords.x - rect.left;
+  const rawY = screenCoords.y - rect.top;
 
   return {
     x: (rawX - pan.x) / zoom,
@@ -170,6 +196,7 @@ export const drawOnCanvas = (
 
   switch (toolType) {
     case ToolTypes.DRAW:
+    case ToolTypes.LINE:
       canvasContext.moveTo(from.x, from.y);
       canvasContext.lineTo(to.x, to.y);
       break;
@@ -182,11 +209,6 @@ export const drawOnCanvas = (
         ERASER_SIZE
       );
 
-      break;
-
-    case ToolTypes.LINE:
-      canvasContext.moveTo(from.x, from.y);
-      canvasContext.lineTo(to.x, to.y);
       break;
 
     case ToolTypes.CIRCLE:

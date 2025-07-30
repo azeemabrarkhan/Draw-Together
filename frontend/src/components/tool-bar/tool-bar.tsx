@@ -1,11 +1,20 @@
 import { useState } from "react";
+import { nanoid } from "nanoid";
 import { Button, ColorInput } from "../";
-import { ZOOM_STEP, type HomeStateAction } from "../../pages";
+import {
+  MAX_ZOOM,
+  MIN_ZOOM,
+  ZOOM_STEP,
+  type HomeStateAction,
+} from "../../pages";
 import type { Coordinates, StrokeHistory } from "../../models";
 import {
   downloadFile,
   downloadObjAsEncodedFile,
+  getCanvasMouseCoords,
   getCurrentTimeStamp,
+  getHeight,
+  getWidth,
   setupCanvas,
 } from "../../utils";
 import {
@@ -19,6 +28,7 @@ import styles from "./styles.module.css";
 
 const STROKE_SIZES = [2, 4, 6, 8, 10];
 const STROKE_SIZE_BUTTON_ICON = `url("/icons/Stroke Size.png")`;
+const COPIED_SHAPE_FROM_SCREEN_COORDINATES = { x: 15, y: 125 };
 
 const BUTTONS_TO_RENDER = [
   CanvasActions.NEW,
@@ -33,6 +43,8 @@ const BUTTONS_TO_RENDER = [
   ToolTypes.SELECT,
   CanvasActions.MOVE_FORWARD,
   CanvasActions.MOVE_BACKWARD,
+  CanvasActions.COPY,
+  CanvasActions.DELETE,
   ToolTypes.DRAW,
   ToolTypes.ERASER,
   ToolTypes.LINE,
@@ -209,7 +221,64 @@ export const ToolBar = ({
             payload: shapeWithUpdateIndex,
           });
         }
+        break;
 
+      case CanvasActions.COPY:
+        if (selectedShape && canvasRef.current) {
+          const selectedShapeCopy = structuredClone(selectedShape);
+          selectedShapeCopy.id = nanoid();
+
+          const zIndexs = history.map((shape) => shape.zIndex);
+          const maxZIndex = Math.max(...zIndexs);
+          selectedShapeCopy.zIndex = maxZIndex + 1;
+
+          const { from, to } = selectedShapeCopy.data[0];
+          const width = to.x - from.x;
+          const heigt = to.y - from.y;
+          const canvasCoords = getCanvasMouseCoords(
+            COPIED_SHAPE_FROM_SCREEN_COORDINATES,
+            canvasRef.current,
+            panCoords.current,
+            zoom.current
+          );
+          selectedShapeCopy.data[0] = {
+            from: {
+              x: width > 0 ? canvasCoords.x : canvasCoords.x + Math.abs(width),
+              y: heigt > 0 ? canvasCoords.y : canvasCoords.y + Math.abs(heigt),
+            },
+            to: {
+              x: width > 0 ? canvasCoords.x + Math.abs(width) : canvasCoords.x,
+              y: heigt > 0 ? canvasCoords.y + Math.abs(heigt) : canvasCoords.y,
+            },
+          };
+
+          setCanvasConfig({
+            type: HomeStateActionTypes.ADD_HISTORY,
+            payload: selectedShapeCopy,
+          });
+
+          setCanvasConfig({
+            type: HomeStateActionTypes.SET_SELECTED_SHAPE,
+            payload: selectedShapeCopy,
+          });
+        }
+        break;
+
+      case CanvasActions.DELETE:
+        if (selectedShape) {
+          const selectedShapeCopy = structuredClone(selectedShape);
+          selectedShapeCopy.isDisabled = true;
+
+          setCanvasConfig({
+            type: HomeStateActionTypes.ADD_HISTORY,
+            payload: selectedShapeCopy,
+          });
+
+          setCanvasConfig({
+            type: HomeStateActionTypes.SET_SELECTED_SHAPE,
+            payload: null,
+          });
+        }
         break;
 
       default:
@@ -219,22 +288,30 @@ export const ToolBar = ({
 
   const getButtonState = (actionName: CanvasActions) => {
     switch (actionName) {
-      case CanvasActions.EXPORT:
+      case CanvasActions.NEW:
+        return false;
+
       case CanvasActions.SAVE:
+      case CanvasActions.EXPORT:
       case CanvasActions.UNDO:
         return history.length === 0;
 
       case CanvasActions.REDO:
         return redoHistory.length === 0;
 
-      case CanvasActions.NEW:
-        return false;
+      case CanvasActions.ZOOM_IN:
+        return zoom.current === MAX_ZOOM;
+
+      case CanvasActions.ZOOM_OUT:
+        return zoom.current === MIN_ZOOM;
 
       case CanvasActions.IMPORT:
         return isImporting;
 
-      case CanvasActions.MOVE_BACKWARD:
       case CanvasActions.MOVE_FORWARD:
+      case CanvasActions.MOVE_BACKWARD:
+      case CanvasActions.COPY:
+      case CanvasActions.DELETE:
         return selectedShape === null;
     }
   };
