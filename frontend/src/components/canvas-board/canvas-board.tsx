@@ -788,6 +788,17 @@ export const CanvasBoard = ({
     setupCanvas(canvasRef.current, panCoords.current, zoom.current, history);
   }, [zoom.current]);
 
+  useEffect(() => {
+    if (!selectedShape) return;
+
+    const selectedShapeCopy = structuredClone(selectedShape);
+    selectedShapeCopy.strokeColor = strokeColor;
+    selectedShapeCopy.fillColor = fillColor;
+    selectedShapeCopy.strokeSize = strokeSize;
+
+    dispatchAddToHistoryAction(selectedShapeCopy);
+  }, [strokeColor, fillColor, strokeSize, dispatchAddToHistoryAction]);
+
   return (
     <>
       <canvas
