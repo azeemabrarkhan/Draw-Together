@@ -13,8 +13,6 @@ import {
   downloadObjAsEncodedFile,
   getCanvasMouseCoords,
   getCurrentTimeStamp,
-  getHeight,
-  getWidth,
   setupCanvas,
 } from "../../utils";
 import {
