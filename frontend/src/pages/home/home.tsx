@@ -7,8 +7,8 @@ import { uploadFile, isStrokeHistoryArray } from "../../utils";
 
 import styles from "./styles.module.css";
 
-const MIN_ZOOM = 0.5;
-const MAX_ZOOM = 5;
+export const MIN_ZOOM = 0.5;
+export const MAX_ZOOM = 5;
 export const ZOOM_STEP = 0.5;
 const DEFAULT_ZOOM = 1;
 

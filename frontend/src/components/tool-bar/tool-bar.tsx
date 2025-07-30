@@ -1,7 +1,12 @@
 import { useState } from "react";
 import { nanoid } from "nanoid";
 import { Button, ColorInput } from "../";
-import { ZOOM_STEP, type HomeStateAction } from "../../pages";
+import {
+  MAX_ZOOM,
+  MIN_ZOOM,
+  ZOOM_STEP,
+  type HomeStateAction,
+} from "../../pages";
 import type { Coordinates, StrokeHistory } from "../../models";
 import {
   downloadFile,
@@ -283,22 +288,28 @@ export const ToolBar = ({
 
   const getButtonState = (actionName: CanvasActions) => {
     switch (actionName) {
-      case CanvasActions.EXPORT:
+      case CanvasActions.NEW:
+        return false;
+
       case CanvasActions.SAVE:
+      case CanvasActions.EXPORT:
       case CanvasActions.UNDO:
         return history.length === 0;
 
       case CanvasActions.REDO:
         return redoHistory.length === 0;
 
-      case CanvasActions.NEW:
-        return false;
+      case CanvasActions.ZOOM_IN:
+        return zoom.current === MAX_ZOOM;
+
+      case CanvasActions.ZOOM_OUT:
+        return zoom.current === MIN_ZOOM;
 
       case CanvasActions.IMPORT:
         return isImporting;
 
-      case CanvasActions.MOVE_BACKWARD:
       case CanvasActions.MOVE_FORWARD:
+      case CanvasActions.MOVE_BACKWARD:
       case CanvasActions.COPY:
       case CanvasActions.DELETE:
         return selectedShape === null;
