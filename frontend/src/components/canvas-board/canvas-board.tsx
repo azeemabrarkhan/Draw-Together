@@ -22,6 +22,7 @@ import {
   getHeight,
   getWidth,
   getMinY,
+  getCoordsFromTouchEvent,
 } from "../../utils/canvas";
 
 import styles from "./styles.module.css";
@@ -316,12 +317,12 @@ export const CanvasBoard = ({
     });
   };
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const handleMouseDown = (coords: Coordinates) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const currentMouseCoords = getCanvasMouseCoords(
-      { x: e.clientX, y: e.clientY },
+      coords,
       canvas,
       panCoords.current,
       zoom.current
@@ -331,8 +332,8 @@ export const CanvasBoard = ({
       isDragging.current = true;
 
       const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+      const x = coords.x - rect.left;
+      const y = coords.y - rect.top;
 
       lastMouseCoords.current = { x, y };
       lastPanCoords.current = { ...panCoords.current };
@@ -354,12 +355,12 @@ export const CanvasBoard = ({
     }
   };
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const handleMouseMove = (coords: Coordinates) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const currentMouseCoords = getCanvasMouseCoords(
-      { x: e.clientX, y: e.clientY },
+      coords,
       canvas,
       panCoords.current,
       zoom.current
@@ -378,8 +379,8 @@ export const CanvasBoard = ({
     switch (selectedTool) {
       case ToolTypes.PAN:
         const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        const x = coords.x - rect.left;
+        const y = coords.y - rect.top;
 
         const dx = x - lastMouseCoords.current.x;
         const dy = y - lastMouseCoords.current.y;
@@ -643,12 +644,12 @@ export const CanvasBoard = ({
     }
   };
 
-  const handleMouseUp = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const handleMouseUp = (coords: Coordinates) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const currentMouseCoords = getCanvasMouseCoords(
-      { x: e.clientX, y: e.clientY },
+      coords,
       canvas,
       panCoords.current,
       zoom.current
@@ -751,6 +752,30 @@ export const CanvasBoard = ({
     strokesData.current = [];
   };
 
+  const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    const coords = getCoordsFromTouchEvent(e);
+
+    if (coords) {
+      handleMouseDown(coords);
+    }
+  };
+
+  const handleTouchmove = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    const coords = getCoordsFromTouchEvent(e);
+
+    if (coords) {
+      handleMouseMove(coords);
+    }
+  };
+
+  const handleTouchend = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    const coords = getCoordsFromTouchEvent(e);
+
+    if (coords) {
+      handleMouseUp(coords);
+    }
+  };
+
   useEffect(() => {
     const handleResize = () => {
       setupCanvas(canvasRef.current, panCoords.current, zoom.current, history);
@@ -817,9 +842,12 @@ export const CanvasBoard = ({
       <canvas
         className={styles.canvas}
         ref={canvasRef}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
+        onMouseDown={(e) => handleMouseDown({ x: e.clientX, y: e.clientY })}
+        onMouseMove={(e) => handleMouseMove({ x: e.clientX, y: e.clientY })}
+        onMouseUp={(e) => handleMouseUp({ x: e.clientX, y: e.clientY })}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchmove}
+        onTouchEnd={handleTouchend}
         onWheel={handleZoom}
       />
       <CanvasOverlay
