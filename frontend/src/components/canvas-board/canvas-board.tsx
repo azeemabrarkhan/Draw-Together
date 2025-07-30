@@ -662,6 +662,7 @@ export const CanvasBoard = ({
       strokeSize,
       zIndex: zIndex.current,
       data: [],
+      isDisabled: false,
     };
 
     switch (selectedTool) {

@@ -80,7 +80,9 @@ export const getShapesToRender = (
     }
   });
 
-  return Array.from(shapesMap.values()).sort((a, b) => a.zIndex - b.zIndex);
+  return Array.from(shapesMap.values())
+    .filter((shape) => !shape.isDisabled)
+    .sort((a, b) => a.zIndex - b.zIndex);
 };
 
 export const drawHistory = (

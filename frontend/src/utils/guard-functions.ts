@@ -21,7 +21,8 @@ export function isStrokeHistory(obj: any): obj is StrokeHistory {
     typeof obj.fillColor === "string" &&
     typeof obj.strokeSize === "number" &&
     typeof obj.id === "string" &&
-    typeof obj.zIndex === "number"
+    typeof obj.zIndex === "number" &&
+    typeof obj.isDisabled === "boolean"
   );
 }
 

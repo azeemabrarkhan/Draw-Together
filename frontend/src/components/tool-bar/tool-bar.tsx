@@ -227,7 +227,7 @@ export const ToolBar = ({
           const maxZIndex = Math.max(...zIndexs);
           selectedShapeCopy.zIndex = maxZIndex + 1;
 
-          const { from, to } = selectedShape.data[0];
+          const { from, to } = selectedShapeCopy.data[0];
           const width = to.x - from.x;
           const heigt = to.y - from.y;
           const canvasCoords = getCanvasMouseCoords(
@@ -255,6 +255,23 @@ export const ToolBar = ({
           setCanvasConfig({
             type: HomeStateActionTypes.SET_SELECTED_SHAPE,
             payload: selectedShapeCopy,
+          });
+        }
+        break;
+
+      case CanvasActions.DELETE:
+        if (selectedShape) {
+          const selectedShapeCopy = structuredClone(selectedShape);
+          selectedShapeCopy.isDisabled = true;
+
+          setCanvasConfig({
+            type: HomeStateActionTypes.ADD_HISTORY,
+            payload: selectedShapeCopy,
+          });
+
+          setCanvasConfig({
+            type: HomeStateActionTypes.SET_SELECTED_SHAPE,
+            payload: null,
           });
         }
         break;
