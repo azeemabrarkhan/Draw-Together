@@ -758,7 +758,7 @@ export const CanvasBoard = ({
     window.addEventListener("resize", handleResize);
 
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [history]);
 
   useEffect(() => {
     setupCanvas(canvasRef.current, panCoords.current, zoom.current, history);
