@@ -248,6 +248,11 @@ export const ToolBar = ({
             type: HomeStateActionTypes.ADD_HISTORY,
             payload: selectedShapeCopy,
           });
+
+          setCanvasConfig({
+            type: HomeStateActionTypes.SET_SELECTED_SHAPE,
+            payload: selectedShapeCopy,
+          });
         }
         break;
 
