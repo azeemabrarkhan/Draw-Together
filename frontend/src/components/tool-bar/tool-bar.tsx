@@ -220,27 +220,30 @@ export const ToolBar = ({
 
       case CanvasActions.COPY:
         if (selectedShape && canvasRef.current) {
-          const width = getWidth(selectedShape);
-          const heigt = getHeight(selectedShape);
+          const selectedShapeCopy = structuredClone(selectedShape);
+          selectedShapeCopy.id = nanoid();
 
           const zIndexs = history.map((shape) => shape.zIndex);
           const maxZIndex = Math.max(...zIndexs);
+          selectedShapeCopy.zIndex = maxZIndex + 1;
 
-          const from = getCanvasMouseCoords(
+          const { from, to } = selectedShape.data[0];
+          const width = to.x - from.x;
+          const heigt = to.y - from.y;
+          const canvasCoords = getCanvasMouseCoords(
             COPIED_SHAPE_FROM_SCREEN_COORDINATES,
             canvasRef.current,
             panCoords.current,
             zoom.current
           );
-
-          const selectedShapeCopy = structuredClone(selectedShape);
-          selectedShapeCopy.id = nanoid();
-          selectedShapeCopy.zIndex = maxZIndex + 1;
           selectedShapeCopy.data[0] = {
-            from,
+            from: {
+              x: width > 0 ? canvasCoords.x : canvasCoords.x + Math.abs(width),
+              y: heigt > 0 ? canvasCoords.y : canvasCoords.y + Math.abs(heigt),
+            },
             to: {
-              x: from.x + width,
-              y: from.y + heigt,
+              x: width > 0 ? canvasCoords.x + Math.abs(width) : canvasCoords.x,
+              y: heigt > 0 ? canvasCoords.y + Math.abs(heigt) : canvasCoords.y,
             },
           };
 
