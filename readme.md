@@ -9,6 +9,19 @@
 
 ---
 
+## 🧑‍💻 Tech Stack
+
+| Layer                 | Tools                               |
+| --------------------- | ----------------------------------- |
+| **Frontend**          | React + TypeScript                  |
+| **Canvas Rendering**  | HTML5 Canvas API                    |
+| **UI/UX**             | Custom CSS, Tooltips, Cursors       |
+| **State Handling**    | React Hooks, `useRef`, `useReducer` |
+| **Deployment**        | Render.com                          |
+| **Testing (planned)** | Jest, Playwright                    |
+
+---
+
 ## 🚀 Features
 
 ### 🧰 Drawing Tools
@@ -83,19 +96,6 @@
 
 ---
 
-## 🧑‍💻 Tech Stack
-
-| Layer                 | Tools                               |
-| --------------------- | ----------------------------------- |
-| **Frontend**          | React + TypeScript                  |
-| **Canvas Rendering**  | HTML5 Canvas API                    |
-| **UI/UX**             | Custom CSS, Tooltips, Cursors       |
-| **State Handling**    | React Hooks, `useRef`, `useReducer` |
-| **Deployment**        | Render.com                          |
-| **Testing (planned)** | Jest, Playwright                    |
-
----
-
 ## 📦 Installation
 
 ```bash
@@ -111,3 +111,35 @@ npm install
 # Start the development server
 npm run dev
 ```
+
+---
+
+## 🎯 What I Learned
+
+- Managing complex canvas state using React hooks
+- Handling real-time interactions (move, resize, delete, copy, fill, undo, redo)
+- Creating a UX-friendly design with custom cursors and tooltips
+- Dynamic z-index tracking and re-rendering shapes in correct order
+- File saving, importing, and exporting for persistent drawings
+
+---
+
+## 🧠 Future Improvements
+
+- 🔗 Backend server with WebSocket support for real-time collaboration
+- 🧱 Group shape selection
+- 🔤 Text insertion tool
+- 📐 Snap to grid and alignment guides
+- 🌙 Theme toggle (dark mode)
+- 🔄 Shape rotation and transformation
+
+---
+
+## 👤 About the Developer
+
+**Azeem Abrar Khan**  
+💼 Fullstack Developer
+🌍 Based in Hamburg, Germany | 🇩🇪
+🎯 Focus: React, TypeScript, NodeJs, MongoDB, UI/UX, interactive web apps  
+🔗 [LinkedIn](https://linkedin.com/in/azeem-abrar-khan)  
+💻 [GitHub](https://github.com/azeemabrarkhan)
