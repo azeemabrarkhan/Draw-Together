@@ -222,6 +222,10 @@ export const ToolBar = ({
         if (selectedShape && canvasRef.current) {
           const width = getWidth(selectedShape);
           const heigt = getHeight(selectedShape);
+
+          const zIndexs = history.map((shape) => shape.zIndex);
+          const maxZIndex = Math.max(...zIndexs);
+
           const from = getCanvasMouseCoords(
             COPIED_SHAPE_FROM_SCREEN_COORDINATES,
             canvasRef.current,
@@ -231,6 +235,7 @@ export const ToolBar = ({
 
           const selectedShapeCopy = structuredClone(selectedShape);
           selectedShapeCopy.id = nanoid();
+          selectedShapeCopy.zIndex = maxZIndex + 1;
           selectedShapeCopy.data[0] = {
             from,
             to: {
