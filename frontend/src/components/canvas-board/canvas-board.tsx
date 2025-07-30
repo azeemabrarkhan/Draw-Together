@@ -793,11 +793,24 @@ export const CanvasBoard = ({
 
     const selectedShapeCopy = structuredClone(selectedShape);
     selectedShapeCopy.strokeColor = strokeColor;
-    selectedShapeCopy.fillColor = fillColor;
-    selectedShapeCopy.strokeSize = strokeSize;
-
     dispatchAddToHistoryAction(selectedShapeCopy);
-  }, [strokeColor, fillColor, strokeSize, dispatchAddToHistoryAction]);
+  }, [strokeColor, dispatchAddToHistoryAction]);
+
+  useEffect(() => {
+    if (!selectedShape) return;
+
+    const selectedShapeCopy = structuredClone(selectedShape);
+    selectedShapeCopy.fillColor = fillColor;
+    dispatchAddToHistoryAction(selectedShapeCopy);
+  }, [fillColor, dispatchAddToHistoryAction]);
+
+  useEffect(() => {
+    if (!selectedShape) return;
+
+    const selectedShapeCopy = structuredClone(selectedShape);
+    selectedShapeCopy.strokeSize = strokeSize;
+    dispatchAddToHistoryAction(selectedShapeCopy);
+  }, [strokeSize, dispatchAddToHistoryAction]);
 
   return (
     <>
