@@ -142,6 +142,7 @@ export const Home = () => {
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const panCoords = useRef<Coordinates>({ x: 0, y: 0 });
+  const zIndex = useRef(0);
 
   useEffect(() => {
     if (!canvasConfig.isImporting) return;
@@ -167,7 +168,13 @@ export const Home = () => {
       );
   }, [canvasConfig.isImporting]);
 
-  const props = { ...canvasConfig, setCanvasConfig, canvasRef, panCoords };
+  const props = {
+    ...canvasConfig,
+    setCanvasConfig,
+    canvasRef,
+    panCoords,
+    zIndex,
+  };
 
   return (
     <div className={styles.home}>

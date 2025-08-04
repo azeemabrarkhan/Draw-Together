@@ -45,6 +45,7 @@ type CanvasBoardPropsType = {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
   panCoords: React.RefObject<Coordinates>;
   selectedShape: StrokeHistory | null;
+  zIndex: React.RefObject<number>;
 };
 
 export const CanvasBoard = ({
@@ -59,12 +60,12 @@ export const CanvasBoard = ({
   canvasRef,
   panCoords,
   selectedShape,
+  zIndex,
 }: CanvasBoardPropsType) => {
   const isDrawing = useRef(false);
   const isDragging = useRef(false);
   const isMoving = useRef(false);
   const isResizing = useRef(false);
-  const zIndex = useRef(0);
   const lastPanCoords = useRef<Coordinates>({ x: 0, y: 0 });
   const lastMouseCoords = useRef<Coordinates>({ x: 0, y: 0 });
   const shapeFrom = useRef<Coordinates | null>(null);

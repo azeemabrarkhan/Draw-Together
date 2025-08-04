@@ -74,6 +74,7 @@ type ToolBarPropsType = {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
   panCoords: React.RefObject<Coordinates>;
   selectedShape: StrokeHistory | null;
+  zIndex: React.RefObject<number>;
 };
 
 export const ToolBar = ({
@@ -89,6 +90,7 @@ export const ToolBar = ({
   canvasRef,
   panCoords,
   selectedShape,
+  zIndex,
 }: ToolBarPropsType) => {
   const [isSizeToolTipOpen, setIsSizeToolTipOpen] = useState(false);
 
@@ -197,11 +199,14 @@ export const ToolBar = ({
         if (canvasRef.current && selectedShape) {
           const zIndexs = history.map((shape) => shape.zIndex);
           const minZIndex = Math.min(...zIndexs);
-          const maxZIndex = Math.max(...zIndexs);
-          const newZIndex =
-            actionName === CanvasActions.MOVE_FORWARD
-              ? maxZIndex + 1
-              : minZIndex - 1;
+
+          let newZIndex;
+          if (actionName === CanvasActions.MOVE_FORWARD) {
+            newZIndex = zIndex.current;
+            zIndex.current += 1;
+          } else {
+            newZIndex = minZIndex - 1;
+          }
 
           const shapeWithUpdateIndex = {
             ...selectedShape,
@@ -226,9 +231,8 @@ export const ToolBar = ({
           const selectedShapeCopy = structuredClone(selectedShape);
           selectedShapeCopy.id = nanoid();
 
-          const zIndexs = history.map((shape) => shape.zIndex);
-          const maxZIndex = Math.max(...zIndexs);
-          selectedShapeCopy.zIndex = maxZIndex + 1;
+          selectedShapeCopy.zIndex = zIndex.current;
+          zIndex.current += 1;
 
           const { from, to } = selectedShapeCopy.data[0];
           const width = to.x - from.x;
